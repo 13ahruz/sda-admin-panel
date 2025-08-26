@@ -17,6 +17,12 @@ python manage.py migrate admin
 python manage.py migrate messages
 echo "Django built-in tables created successfully!"
 
+# Create migrations for our custom models and apply them
+echo "Creating and applying SDA models migrations..."
+python manage.py makemigrations sda_models --verbosity=2
+python manage.py migrate sda_models --verbosity=2
+echo "SDA models migrations completed!"
+
 # Create superuser if it doesn't exist
 echo "Checking for admin user..."
 python manage.py shell << EOF
