@@ -93,16 +93,14 @@ class PropertySector(TimestampMixin):
 
 
 class Project(TimestampMixin):
-    """Projects model with file upload"""
+    """Projects model"""
     title = models.CharField(max_length=200)
     tag = models.CharField(max_length=100, blank=True, null=True)
     client = models.CharField(max_length=200, blank=True, null=True)
     year = models.IntegerField(blank=True, null=True)
-    property_sector = models.ForeignKey(PropertySector, on_delete=models.CASCADE, related_name='projects')
+    property_sector = models.ForeignKey(PropertySector, on_delete=models.SET_NULL, related_name='projects', null=True, blank=True)
     
-    # File field for cover photo
-    cover_photo = models.ImageField(upload_to=upload_to_projects_covers, blank=True, null=True)
-    # URL field (automatically populated from file)
+    # URL field matching backend database structure exactly
     cover_photo_url = models.URLField(blank=True, null=True)
 
     class Meta:
@@ -113,22 +111,13 @@ class Project(TimestampMixin):
     def __str__(self):
         return self.title
 
-    def save(self, *args, **kwargs):
-        # Generate URL from file if file exists
-        if self.cover_photo:
-            # Use relative URL that matches backend structure
-            self.cover_photo_url = f"/uploads/{self.cover_photo.name}"
-        super().save(*args, **kwargs)
-
 
 class ProjectPhoto(TimestampMixin):
     """Project photos model"""
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='photos')
     
-    # File field for image
-    image = models.ImageField(upload_to=upload_to_projects_photos, blank=True, null=True)
-    # URL field (automatically populated from file)
-    image_url = models.URLField(blank=True, null=True)
+    # URL field matching backend database structure exactly
+    image_url = models.URLField()
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -139,11 +128,6 @@ class ProjectPhoto(TimestampMixin):
 
     def __str__(self):
         return f"{self.project.title} - Photo {self.order}"
-
-    def save(self, *args, **kwargs):
-        if self.image:
-            self.image_url = f"/uploads/{self.image.name}"
-        super().save(*args, **kwargs)
 
 
 class Partner(TimestampMixin):
@@ -164,10 +148,8 @@ class PartnerLogo(TimestampMixin):
     """Partner logos model"""
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE, related_name='logos')
     
-    # File field for logo
-    image = models.ImageField(upload_to=upload_to_partners_logos, blank=True, null=True)
-    # URL field (automatically populated from file)
-    image_url = models.URLField(blank=True, null=True)
+    # URL field matching backend database structure exactly
+    image_url = models.URLField()
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -178,11 +160,6 @@ class PartnerLogo(TimestampMixin):
 
     def __str__(self):
         return f"{self.partner.title} - Logo {self.order}"
-
-    def save(self, *args, **kwargs):
-        if self.image:
-            self.image_url = f"/uploads/{self.image.name}"
-        super().save(*args, **kwargs)
 
 
 class About(TimestampMixin):
