@@ -24,25 +24,20 @@ class ImagePreviewMixin:
     """Mixin to add image preview functionality"""
     
     def image_preview(self, obj):
-        if hasattr(obj, 'image') and obj.image:
+        image_url = None
+        
+        # Check for various URL fields
+        if hasattr(obj, 'image_url') and obj.image_url:
+            image_url = obj.image_url
+        elif hasattr(obj, 'photo_url') and obj.photo_url:
+            image_url = obj.photo_url
+        elif hasattr(obj, 'cover_photo_url') and obj.cover_photo_url:
+            image_url = obj.cover_photo_url
+        
+        if image_url:
             return format_html(
                 '<img src="{}" style="max-height: 100px; max-width: 200px;" />',
-                obj.image.url
-            )
-        elif hasattr(obj, 'photo') and obj.photo:
-            return format_html(
-                '<img src="{}" style="max-height: 100px; max-width: 200px;" />',
-                obj.photo.url
-            )
-        elif hasattr(obj, 'icon') and obj.icon:
-            return format_html(
-                '<img src="{}" style="max-height: 100px; max-width: 200px;" />',
-                obj.icon.url
-            )
-        elif hasattr(obj, 'cover_photo') and obj.cover_photo:
-            return format_html(
-                '<img src="{}" style="max-height: 100px; max-width: 200px;" />',
-                obj.cover_photo.url
+                image_url
             )
         return "No image"
     
@@ -53,22 +48,19 @@ class ImagePreviewMixin:
 class ProjectPhotoInline(admin.TabularInline):
     model = ProjectPhoto
     extra = 1
-    fields = ('image', 'image_url', 'order')
-    readonly_fields = ('image_url',)
+    fields = ('image_url', 'order')
 
 
 class PartnerLogoInline(admin.TabularInline):
     model = PartnerLogo
     extra = 1
-    fields = ('image', 'image_url', 'order')
-    readonly_fields = ('image_url',)
+    fields = ('image_url', 'order')
 
 
 class AboutLogoInline(admin.TabularInline):
     model = AboutLogo
     extra = 1
-    fields = ('image', 'image_url', 'order')
-    readonly_fields = ('image_url',)
+    fields = ('image_url', 'order')
 
 
 class ServiceBenefitInline(admin.TabularInline):
