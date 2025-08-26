@@ -9,11 +9,11 @@ services:
     ports:
       - "8001:8001"
     environment:
-      # Database Configuration (same as your FastAPI backend)
+      # Database Configuration (connect to backend's database)
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_SERVER=${POSTGRES_SERVER:-db}
-      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=5432
       - POSTGRES_DB=${POSTGRES_DB:-sda_db}
       
       # Django Settings
@@ -29,44 +29,14 @@ services:
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
-    depends_on:
-      - db
     networks:
-      - sda-network
-    restart: unless-stopped
-
-  db:
-    image: postgres:15
-    container_name: sda-postgres
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_DB=${POSTGRES_DB:-sda_db}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - sda-network
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    container_name: sda-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - sda-network
+      - sda_network  # Use backend's network
     restart: unless-stopped
 
 volumes:
-  postgres_data:
-  redis_data:
   static_volume:
   media_volume:
 
 networks:
-  sda-network:
-    driver: bridge
+  sda_network:
+    external: true  # Use the existing backend network
