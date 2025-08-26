@@ -50,7 +50,8 @@ class WorkProcessResource(resources.ModelResource):
 class AboutLogoInline(admin.TabularInline):
     model = AboutLogo
     extra = 1
-    fields = ('image_url', 'order')
+    fields = ('image_file', 'image_url', 'order')
+    readonly_fields = ('image_url',)
     ordering = ['order']
 
 
@@ -64,14 +65,16 @@ class SectorInnInline(admin.TabularInline):
 class ProjectPhotoInline(admin.TabularInline):
     model = ProjectPhoto
     extra = 1
-    fields = ('image_url', 'order')
+    fields = ('image_file', 'image_url', 'order')
+    readonly_fields = ('image_url',)
     ordering = ['order']
 
 
 class NewsSectionInline(admin.StackedInline):
     model = NewsSection
     extra = 1
-    fields = ('order', 'heading', 'content', 'image_url')
+    fields = ('order', 'heading', 'content', 'image_file', 'image_url')
+    readonly_fields = ('image_url',)
     ordering = ['order']
 
 
@@ -85,7 +88,8 @@ class TeamSectionItemInline(admin.TabularInline):
 class PartnerLogoInline(admin.TabularInline):
     model = PartnerLogo
     extra = 1
-    fields = ('image_url', 'order')
+    fields = ('image_file', 'image_url', 'order')
+    readonly_fields = ('image_url',)
     ordering = ['order']
 
 
@@ -113,10 +117,14 @@ class AboutLogoAdmin(admin.ModelAdmin):
     list_display = ['id', 'about', 'image_preview', 'order', 'created_at']
     list_filter = ['about', 'created_at']
     list_editable = ['order']
+    fields = ('about', 'image_file', 'image_url', 'order')
+    readonly_fields = ('image_url',)
     ordering = ['about', 'order']
     
     def image_preview(self, obj):
-        if obj.image_url:
+        if obj.image_file:
+            return format_html('<img src="{}" style="max-height: 50px; max-width: 100px;" />', obj.image_file.url)
+        elif obj.image_url:
             return format_html('<img src="{}" style="max-height: 50px; max-width: 100px;" />', obj.image_url)
         return "No image"
     image_preview.short_description = 'Image Preview'
@@ -164,12 +172,15 @@ class ProjectAdmin(ImportExportModelAdmin):
     list_display = ['title', 'property_sector', 'client', 'year', 'tag', 'cover_preview', 'photo_count', 'created_at']
     list_filter = ['property_sector', 'year', 'created_at']
     search_fields = ['title', 'client', 'tag']
+    fields = ('title', 'property_sector', 'client', 'year', 'tag', 'cover_photo_file', 'cover_photo_url')
+    readonly_fields = ('cover_photo_url', 'created_at', 'updated_at')
     inlines = [ProjectPhotoInline]
-    readonly_fields = ['created_at', 'updated_at']
     ordering = ['-year', 'title']
     
     def cover_preview(self, obj):
-        if obj.cover_photo_url:
+        if obj.cover_photo_file:
+            return format_html('<img src="{}" style="max-height: 50px; max-width: 100px;" />', obj.cover_photo_file.url)
+        elif obj.cover_photo_url:
             return format_html('<img src="{}" style="max-height: 50px; max-width: 100px;" />', obj.cover_photo_url)
         return "No cover"
     cover_preview.short_description = 'Cover'
@@ -184,10 +195,14 @@ class ProjectPhotoAdmin(admin.ModelAdmin):
     list_display = ['id', 'project', 'image_preview', 'order', 'created_at']
     list_filter = ['project', 'created_at']
     list_editable = ['order']
+    fields = ('project', 'image_file', 'image_url', 'order')
+    readonly_fields = ('image_url',)
     ordering = ['project', 'order']
     
     def image_preview(self, obj):
-        if obj.image_url:
+        if obj.image_file:
+            return format_html('<img src="{}" style="max-height: 50px; max-width: 100px;" />', obj.image_file.url)
+        elif obj.image_url:
             return format_html('<img src="{}" style="max-height: 50px; max-width: 100px;" />', obj.image_url)
         return "No image"
     image_preview.short_description = 'Image Preview'

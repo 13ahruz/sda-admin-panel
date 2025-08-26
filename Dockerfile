@@ -25,6 +25,9 @@ COPY . /app/
 # Create directories for static and media files
 RUN mkdir -p /app/staticfiles /app/media
 
+# Set proper permissions for media directory
+RUN chmod 755 /app/media
+
 # Collect static files
 RUN python manage.py collectstatic --noinput
 

@@ -29,6 +29,8 @@ services:
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      # Mount the uploads directory from your FastAPI backend for file compatibility
+      - ../sda/uploads:/app/backend_uploads:ro
     depends_on:
       - db
     networks:

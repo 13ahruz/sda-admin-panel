@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🔧 Fixing Django Admin Panel Issues..."
+echo "🔧 Fixing Django Admin Panel with File Upload Support..."
 
 # Create a working .env file with permissive settings
 echo "📝 Creating .env file with correct settings..."
@@ -25,22 +25,28 @@ docker-compose -f docker-compose.simple.yml down
 echo "🧹 Cleaning up volumes to ensure fresh start..."
 docker-compose -f docker-compose.simple.yml down -v
 
-echo "🚀 Starting containers with fixed settings..."
+echo "🚀 Starting containers with file upload support..."
 docker-compose -f docker-compose.simple.yml up -d --build
 
 echo "⏳ Waiting for containers to start..."
-sleep 10
+sleep 15
 
 echo "📋 Checking container status..."
 docker-compose -f docker-compose.simple.yml ps
 
 echo ""
-echo "✅ Fix applied!"
+echo "✅ Fix applied with file upload support!"
 echo ""
 echo "🌐 Try accessing: http://$(hostname -I | awk '{print $1}'):8001/admin/"
 echo "👤 Login: admin / admin123"
 echo ""
-echo "📋 Check logs if still having issues:"
+echo "� New Features:"
+echo "   ✅ File upload fields for all images"
+echo "   ✅ Automatic URL generation from uploads"
+echo "   ✅ Backward compatibility with existing URLs"
+echo "   ✅ Image previews in admin interface"
+echo ""
+echo "�📋 Check logs if still having issues:"
 echo "   docker-compose -f docker-compose.simple.yml logs -f sda-admin"
 echo ""
-echo "🔍 If you see database migration messages, that's normal and expected!"
+echo "🔍 Database migrations and file field setup is normal and expected!"
