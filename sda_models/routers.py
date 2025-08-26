@@ -29,7 +29,7 @@ class SDARouter:
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """Ensure that the SDA app's models get created on the right database."""
         if app_label in self.route_app_labels:
-            # Don't create migrations for our existing tables
-            return False
+            # Allow Django to create tables for our models
+            return True
         # Allow Django's built-in apps to create their tables
         return True
