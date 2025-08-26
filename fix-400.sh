@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🔧 Fixing 400 Bad Request Error..."
+echo "🔧 Fixing Django Admin Panel Issues..."
 
 # Create a working .env file with permissive settings
 echo "📝 Creating .env file with correct settings..."
@@ -22,8 +22,17 @@ EOF
 echo "🛑 Stopping existing containers..."
 docker-compose -f docker-compose.simple.yml down
 
+echo "🧹 Cleaning up volumes to ensure fresh start..."
+docker-compose -f docker-compose.simple.yml down -v
+
 echo "🚀 Starting containers with fixed settings..."
 docker-compose -f docker-compose.simple.yml up -d --build
+
+echo "⏳ Waiting for containers to start..."
+sleep 10
+
+echo "📋 Checking container status..."
+docker-compose -f docker-compose.simple.yml ps
 
 echo ""
 echo "✅ Fix applied!"
@@ -33,3 +42,5 @@ echo "👤 Login: admin / admin123"
 echo ""
 echo "📋 Check logs if still having issues:"
 echo "   docker-compose -f docker-compose.simple.yml logs -f sda-admin"
+echo ""
+echo "🔍 If you see database migration messages, that's normal and expected!"

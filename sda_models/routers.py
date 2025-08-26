@@ -31,4 +31,5 @@ class SDARouter:
         if app_label in self.route_app_labels:
             # Don't create migrations for our existing tables
             return False
-        return None
+        # Allow Django's built-in apps to create their tables
+        return True

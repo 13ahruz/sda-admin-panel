@@ -81,6 +81,9 @@ DATABASES = {
 # Since we're using existing tables, we don't want Django to manage migrations
 DATABASE_ROUTERS = ['sda_models.routers.SDARouter']
 
+# We need to allow Django to create its own tables (auth, sessions, etc.)
+# while not touching our existing SDA tables
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
