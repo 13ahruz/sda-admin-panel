@@ -30,7 +30,7 @@ services:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     networks:
-      - sda_network  # Use backend's network
+      - sda_sda_network  # Use backend's actual network name
     restart: unless-stopped
 
 volumes:
@@ -38,5 +38,5 @@ volumes:
   media_volume:
 
 networks:
-  sda_network:
+  sda_sda_network:
     external: true  # Use the existing backend network
