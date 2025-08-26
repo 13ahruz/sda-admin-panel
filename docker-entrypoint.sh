@@ -8,9 +8,14 @@ until PGPASSWORD=$POSTGRES_PASSWORD psql -h "$POSTGRES_SERVER" -U "$POSTGRES_USE
 done
 echo "Database is ready!"
 
-# Run Django migrations for built-in apps (auth, admin, sessions, etc.)
+# Run Django migrations for built-in apps only (auth, admin, sessions, etc.)
 echo "Running Django migrations for built-in apps..."
-python manage.py migrate
+python manage.py migrate auth
+python manage.py migrate contenttypes
+python manage.py migrate sessions  
+python manage.py migrate admin
+python manage.py migrate messages
+echo "Django built-in tables created successfully!"
 
 # Create superuser if it doesn't exist
 echo "Checking for admin user..."
