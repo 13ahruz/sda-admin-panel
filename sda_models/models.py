@@ -1,354 +1,424 @@
+import os
+import uuid
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
+from django.utils import timezone
+from django.core.files.storage import default_storage
+from django.conf import settings
+
+
+def upload_to_projects_covers(instance, filename):
+    """Upload path for project cover photos"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"projects/covers/{filename}"
+
+
+def upload_to_projects_photos(instance, filename):
+    """Upload path for project photos"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"projects/photos/{filename}"
+
+
+def upload_to_partners_logos(instance, filename):
+    """Upload path for partner logos"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"partners/logos/{filename}"
+
+
+def upload_to_about_logos(instance, filename):
+    """Upload path for about logos"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"about/logos/{filename}"
+
+
+def upload_to_team_members(instance, filename):
+    """Upload path for team member photos"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"team/members/{filename}"
+
+
+def upload_to_team_sections(instance, filename):
+    """Upload path for team section items"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"team/sections/{filename}"
+
+
+def upload_to_services(instance, filename):
+    """Upload path for service icons"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"services/{filename}"
+
+
+def upload_to_news(instance, filename):
+    """Upload path for news images"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"news/{filename}"
+
+
+def upload_to_work_processes(instance, filename):
+    """Upload path for work process images"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"work-processes/{filename}"
 
 
 class TimestampMixin(models.Model):
-    """Mixin for created_at and updated_at fields to match SQLAlchemy backend"""
-    created_at = models.DateTimeField(auto_now_add=True)
+    """Mixin for created_at and updated_at fields"""
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         abstract = True
 
 
-# About models - exact match to FastAPI backend
-class About(TimestampMixin):
-    """About section model - matches backend About model"""
-    experience = models.TextField()
-    project_count = models.TextField()
-    members = models.TextField()
-    
+class PropertySector(TimestampMixin):
+    """Property sectors model"""
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+
     class Meta:
-        db_table = 'about'
-        verbose_name = 'About'
-        verbose_name_plural = 'About'
-    
-    def __str__(self):
-        return f"About - Experience: {self.experience[:50]}"
+        db_table = 'property_sectors'
+        verbose_name = 'Property Sector'
+        verbose_name_plural = 'Property Sectors'
 
-
-class AboutLogo(TimestampMixin):
-    """About logos model - matches backend AboutLogo model"""
-    about = models.ForeignKey(About, on_delete=models.CASCADE, related_name='logos')
-    image_url = models.TextField()
-    order = models.IntegerField(default=0)
-    
-    class Meta:
-        db_table = 'about_logos'
-        verbose_name = 'About Logo'
-        verbose_name_plural = 'About Logos'
-        indexes = [
-            models.Index(fields=['about', 'order'], name='ix_about_logos_about_order'),
-        ]
-    
-    def __str__(self):
-        return f"About Logo {self.order}"
-
-
-# Services models - exact match to FastAPI backend
-class Service(TimestampMixin):
-    """Service model - matches backend Service model"""
-    name = models.TextField()
-    description = models.TextField(null=True, blank=True)
-    order = models.IntegerField(default=0)
-    icon_url = models.TextField(null=True, blank=True)
-    
-    class Meta:
-        db_table = 'services'
-        verbose_name = 'Service'
-        verbose_name_plural = 'Services'
-        indexes = [
-            models.Index(fields=['order'], name='ix_services_order'),
-        ]
-    
     def __str__(self):
         return self.name
 
 
-class ServiceBenefit(TimestampMixin):
-    """Service benefit model - matches backend ServiceBenefit model"""
-    title = models.TextField()
-    description = models.TextField(null=True, blank=True)
-    order = models.IntegerField(default=0)
+class Project(TimestampMixin):
+    """Projects model with file upload"""
+    title = models.CharField(max_length=200)
+    tag = models.CharField(max_length=100, blank=True, null=True)
+    client = models.CharField(max_length=200, blank=True, null=True)
+    year = models.IntegerField(blank=True, null=True)
+    property_sector = models.ForeignKey(PropertySector, on_delete=models.CASCADE, related_name='projects')
     
+    # File field for cover photo
+    cover_photo = models.ImageField(upload_to=upload_to_projects_covers, blank=True, null=True)
+    # URL field (automatically populated from file)
+    cover_photo_url = models.URLField(blank=True, null=True)
+
     class Meta:
-        db_table = 'service_benefits'
-        verbose_name = 'Service Benefit'
-        verbose_name_plural = 'Service Benefits'
-        indexes = [
-            models.Index(fields=['order'], name='ix_service_benefits_order'),
-        ]
-    
+        db_table = 'projects'
+        verbose_name = 'Project'
+        verbose_name_plural = 'Projects'
+
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        # Generate URL from file if file exists
+        if self.cover_photo:
+            # Use relative URL that matches backend structure
+            self.cover_photo_url = f"/uploads/{self.cover_photo.name}"
+        super().save(*args, **kwargs)
 
-# Approaches model - exact match to FastAPI backend
-class Approach(TimestampMixin):
-    """Approach model - matches backend Approach model"""
-    title = models.TextField()
-    description = models.TextField(null=True, blank=True)
+
+class ProjectPhoto(TimestampMixin):
+    """Project photos model"""
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='photos')
+    
+    # File field for image
+    image = models.ImageField(upload_to=upload_to_projects_photos, blank=True, null=True)
+    # URL field (automatically populated from file)
+    image_url = models.URLField(blank=True, null=True)
     order = models.IntegerField(default=0)
-    
+
     class Meta:
-        db_table = 'approaches'
-        verbose_name = 'Approach'
-        verbose_name_plural = 'Approaches'
-        indexes = [
-            models.Index(fields=['order'], name='ix_approaches_order'),
-        ]
-    
+        db_table = 'project_photos'
+        verbose_name = 'Project Photo'
+        verbose_name_plural = 'Project Photos'
+        ordering = ['order']
+
     def __str__(self):
-        return self.title
+        return f"{self.project.title} - Photo {self.order}"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image_url = f"/uploads/{self.image.name}"
+        super().save(*args, **kwargs)
 
 
-# Contact model - exact match to FastAPI backend
-class ContactMessage(TimestampMixin):
-    """Contact message model - matches backend ContactMessage model"""
-    first_name = models.TextField()
-    last_name = models.TextField()
-    phone_number = models.TextField()
-    email = models.TextField()
-    message = models.TextField(null=True, blank=True)
-    cv_url = models.TextField(null=True, blank=True)
-    
-    class Meta:
-        db_table = 'contact_messages'
-        verbose_name = 'Contact Message'
-        verbose_name_plural = 'Contact Messages'
-        indexes = [
-            models.Index(fields=['created_at'], name='ix_contact_messages_created_at'),
-        ]
-    
-    def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.email}"
-
-
-# News models - exact match to FastAPI backend
-class News(TimestampMixin):
-    """News model - matches backend News model"""
-    photo_url = models.TextField(null=True, blank=True)
-    tags = ArrayField(models.TextField(), default=list, blank=True)
-    title = models.TextField()
-    summary = models.TextField(null=True, blank=True)
-    
-    class Meta:
-        db_table = 'news'
-        verbose_name = 'News'
-        verbose_name_plural = 'News'
-        indexes = [
-            models.Index(fields=['created_at'], name='ix_news_created_at'),
-        ]
-    
-    def __str__(self):
-        return self.title
-
-
-class NewsSection(TimestampMixin):
-    """News section model - matches backend NewsSection model"""
-    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='sections')
-    order = models.IntegerField(default=0)
-    heading = models.TextField(null=True, blank=True)
-    content = models.TextField(null=True, blank=True)
-    image_url = models.TextField(null=True, blank=True)
-    
-    class Meta:
-        db_table = 'news_sections'
-        verbose_name = 'News Section'
-        verbose_name_plural = 'News Sections'
-        indexes = [
-            models.Index(fields=['news', 'order'], name='ix_news_sections_news_order'),
-        ]
-    
-    def __str__(self):
-        return f"{self.news.title} - Section {self.order}"
-
-
-# Partners models - exact match to FastAPI backend
 class Partner(TimestampMixin):
-    """Partner model - matches backend Partner model"""
-    title = models.TextField()
-    button_text = models.TextField(null=True, blank=True)
-    
+    """Partners model"""
+    title = models.CharField(max_length=200)
+    button_text = models.CharField(max_length=100, blank=True, null=True)
+
     class Meta:
         db_table = 'partners'
         verbose_name = 'Partner'
         verbose_name_plural = 'Partners'
-    
+
     def __str__(self):
         return self.title
 
 
 class PartnerLogo(TimestampMixin):
-    """Partner logo model - matches backend PartnerLogo model"""
+    """Partner logos model"""
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE, related_name='logos')
-    image_url = models.TextField()
-    order = models.IntegerField(default=0)
     
+    # File field for logo
+    image = models.ImageField(upload_to=upload_to_partners_logos, blank=True, null=True)
+    # URL field (automatically populated from file)
+    image_url = models.URLField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
     class Meta:
         db_table = 'partner_logos'
         verbose_name = 'Partner Logo'
         verbose_name_plural = 'Partner Logos'
-        indexes = [
-            models.Index(fields=['partner', 'order'], name='ix_partner_logos_partner_order'),
-        ]
-    
+        ordering = ['order']
+
     def __str__(self):
         return f"{self.partner.title} - Logo {self.order}"
 
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image_url = f"/uploads/{self.image.name}"
+        super().save(*args, **kwargs)
 
-# Property Sectors models - exact match to FastAPI backend
-class PropertySector(TimestampMixin):
-    """Property sector model - matches backend PropertySector model"""
-    title = models.TextField(unique=True)
-    description = models.TextField(null=True, blank=True)
-    order = models.IntegerField(default=0)
-    
+
+class About(TimestampMixin):
+    """About sections model"""
+    experience = models.CharField(max_length=100)
+    project_count = models.CharField(max_length=100)
+    members = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+
     class Meta:
-        db_table = 'property_sectors'
-        verbose_name = 'Property Sector'
-        verbose_name_plural = 'Property Sectors'
-        indexes = [
-            models.Index(fields=['order'], name='ix_property_sectors_order'),
-        ]
+        db_table = 'about'
+        verbose_name = 'About Section'
+        verbose_name_plural = 'About Sections'
+
+    def __str__(self):
+        return f"About - {self.experience} experience"
+
+
+class AboutLogo(TimestampMixin):
+    """About logos model"""
+    about = models.ForeignKey(About, on_delete=models.CASCADE, related_name='logos')
     
+    # File field for logo
+    image = models.ImageField(upload_to=upload_to_about_logos, blank=True, null=True)
+    # URL field (automatically populated from file)
+    image_url = models.URLField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'about_logos'
+        verbose_name = 'About Logo'
+        verbose_name_plural = 'About Logos'
+        ordering = ['order']
+
+    def __str__(self):
+        return f"About Logo {self.order}"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image_url = f"/uploads/{self.image.name}"
+        super().save(*args, **kwargs)
+
+
+class Service(TimestampMixin):
+    """Services model"""
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    
+    # File field for icon
+    icon = models.ImageField(upload_to=upload_to_services, blank=True, null=True)
+    # URL field (automatically populated from file)
+    icon_url = models.URLField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'services'
+        verbose_name = 'Service'
+        verbose_name_plural = 'Services'
+        ordering = ['order']
+
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        if self.icon:
+            self.icon_url = f"/uploads/{self.icon.name}"
+        super().save(*args, **kwargs)
 
-class SectorInn(TimestampMixin):
-    """Sector inn model - matches backend SectorInn model"""
-    property_sector = models.ForeignKey(PropertySector, on_delete=models.CASCADE, related_name='inns')
-    title = models.TextField()
-    description = models.TextField(null=True, blank=True)
+
+class ServiceBenefit(TimestampMixin):
+    """Service benefits model"""
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='benefits')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
     order = models.IntegerField(default=0)
-    
+
     class Meta:
-        db_table = 'sector_inns'
-        verbose_name = 'Sector Inn'
-        verbose_name_plural = 'Sector Inns'
-        constraints = [
-            models.UniqueConstraint(fields=['property_sector', 'title'], name='uq_sector_inns_sector_title'),
-        ]
-        indexes = [
-            models.Index(fields=['property_sector', 'order'], name='ix_sector_inns_sector_order'),
-        ]
-    
+        db_table = 'service_benefits'
+        verbose_name = 'Service Benefit'
+        verbose_name_plural = 'Service Benefits'
+        ordering = ['order']
+
     def __str__(self):
-        return f"{self.property_sector.title} - {self.title}"
+        return f"{self.service.title} - {self.title}"
 
 
-# Projects models - exact match to FastAPI backend
-class Project(TimestampMixin):
-    """Project model - matches backend Project model"""
-    title = models.TextField()
-    tag = models.TextField(null=True, blank=True)
-    client = models.TextField(null=True, blank=True)
-    year = models.IntegerField(null=True, blank=True)
-    property_sector = models.ForeignKey(PropertySector, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
-    cover_photo_url = models.TextField(null=True, blank=True)
+class News(TimestampMixin):
+    """News model"""
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
     
+    # File field for image
+    image = models.ImageField(upload_to=upload_to_news, blank=True, null=True)
+    # URL field (automatically populated from file)
+    image_url = models.URLField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
     class Meta:
-        db_table = 'projects'
-        verbose_name = 'Project'
-        verbose_name_plural = 'Projects'
-        indexes = [
-            models.Index(fields=['property_sector'], name='ix_projects_property_sector'),
-            models.Index(fields=['year'], name='ix_projects_year'),
-            models.Index(fields=['tag'], name='ix_projects_tag'),
-        ]
-    
+        db_table = 'news'
+        verbose_name = 'News Article'
+        verbose_name_plural = 'News Articles'
+        ordering = ['-created_at']
+
     def __str__(self):
         return self.title
 
-
-class ProjectPhoto(TimestampMixin):
-    """Project photo model - matches backend ProjectPhoto model"""
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='photos')
-    image_url = models.TextField()
-    order = models.IntegerField(default=0)
-    
-    class Meta:
-        db_table = 'project_photos'
-        verbose_name = 'Project Photo'
-        verbose_name_plural = 'Project Photos'
-        indexes = [
-            models.Index(fields=['project', 'order'], name='ix_project_photos_proj_order'),
-        ]
-    
-    def __str__(self):
-        return f"{self.project.title} - Photo {self.order}"
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image_url = f"/uploads/{self.image.name}"
+        super().save(*args, **kwargs)
 
 
-# Team models - exact match to FastAPI backend
 class TeamMember(TimestampMixin):
-    """Team member model - matches backend TeamMember model"""
-    full_name = models.TextField()
-    role = models.TextField(null=True, blank=True)
-    photo_url = models.TextField(null=True, blank=True)
+    """Team members model"""
+    full_name = models.CharField(max_length=200)
+    role = models.CharField(max_length=100, blank=True, null=True)
     
+    # File field for photo
+    photo = models.ImageField(upload_to=upload_to_team_members, blank=True, null=True)
+    # URL field (automatically populated from file)
+    photo_url = models.URLField(blank=True, null=True)
+
     class Meta:
         db_table = 'team_members'
         verbose_name = 'Team Member'
         verbose_name_plural = 'Team Members'
-        indexes = [
-            models.Index(fields=['full_name'], name='ix_team_members_full_name'),
-        ]
-    
+
     def __str__(self):
         return self.full_name
 
+    def save(self, *args, **kwargs):
+        if self.photo:
+            self.photo_url = f"/uploads/{self.photo.name}"
+        super().save(*args, **kwargs)
+
 
 class TeamSection(TimestampMixin):
-    """Team section model - matches backend TeamSection model"""
-    title = models.TextField()
-    button_text = models.TextField(null=True, blank=True)
-    
+    """Team sections model"""
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
     class Meta:
         db_table = 'team_sections'
         verbose_name = 'Team Section'
         verbose_name_plural = 'Team Sections'
-    
+        ordering = ['order']
+
     def __str__(self):
         return self.title
 
 
 class TeamSectionItem(TimestampMixin):
-    """Team section item model - matches backend TeamSectionItem model"""
+    """Team section items model"""
     team_section = models.ForeignKey(TeamSection, on_delete=models.CASCADE, related_name='items')
-    name = models.TextField()
-    description = models.TextField(null=True, blank=True)
-    photo_url = models.TextField(null=True, blank=True)
-    button_text = models.TextField(null=True, blank=True)
-    order = models.IntegerField(default=0)
+    name = models.CharField(max_length=200)
+    position = models.CharField(max_length=100, blank=True, null=True)
+    department = models.CharField(max_length=100, blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
     
+    # File field for photo
+    photo = models.ImageField(upload_to=upload_to_team_sections, blank=True, null=True)
+    # URL field (automatically populated from file)
+    photo_url = models.URLField(blank=True, null=True)
+    display_order = models.IntegerField(default=0)
+
     class Meta:
         db_table = 'team_section_items'
         verbose_name = 'Team Section Item'
         verbose_name_plural = 'Team Section Items'
-        indexes = [
-            models.Index(fields=['team_section', 'order'], name='ix_team_section_items_order'),
-        ]
-    
+        ordering = ['display_order']
+
     def __str__(self):
         return f"{self.team_section.title} - {self.name}"
 
+    def save(self, *args, **kwargs):
+        if self.photo:
+            self.photo_url = f"/uploads/{self.photo.name}"
+        super().save(*args, **kwargs)
 
-# Work Process model - exact match to FastAPI backend
+
 class WorkProcess(TimestampMixin):
-    """Work process model - matches backend WorkProcess model"""
-    title = models.TextField()
-    description = models.TextField(null=True, blank=True)
-    order = models.IntegerField(default=0)
-    image_url = models.TextField(null=True, blank=True)
+    """Work processes model"""
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
     
+    # File field for image
+    image = models.ImageField(upload_to=upload_to_work_processes, blank=True, null=True)
+    # URL field (automatically populated from file)
+    photo_url = models.URLField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
     class Meta:
         db_table = 'work_processes'
         verbose_name = 'Work Process'
         verbose_name_plural = 'Work Processes'
-        indexes = [
-            models.Index(fields=['order'], name='ix_work_processes_order'),
-        ]
-    
+        ordering = ['order']
+
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.photo_url = f"/uploads/{self.image.name}"
+        super().save(*args, **kwargs)
+
+
+class Approach(TimestampMixin):
+    """Approaches model"""
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'approaches'
+        verbose_name = 'Approach'
+        verbose_name_plural = 'Approaches'
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+
+class Contact(TimestampMixin):
+    """Contact model"""
+    address = models.TextField(blank=True, null=True)
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    linkedin = models.URLField(blank=True, null=True)
+    instagram = models.URLField(blank=True, null=True)
+    youtube = models.URLField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'contact'
+        verbose_name = 'Contact Information'
+        verbose_name_plural = 'Contact Information'
+
+    def __str__(self):
+        return f"Contact - {self.email or 'No email'}"
