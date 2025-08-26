@@ -1,72 +1,6 @@
-import os
-import uuid
 from django.db import models
 from django.utils import timezone
-from django.core.files.storage import default_storage
-from django.conf import settings
 
-
-def upload_to_projects_covers(instance, filename):
-    """Upload path for project cover photos"""
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"projects/covers/{filename}"
-
-
-def upload_to_projects_photos(instance, filename):
-    """Upload path for project photos"""
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"projects/photos/{filename}"
-
-
-def upload_to_partners_logos(instance, filename):
-    """Upload path for partner logos"""
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"partners/logos/{filename}"
-
-
-def upload_to_about_logos(instance, filename):
-    """Upload path for about logos"""
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"about/logos/{filename}"
-
-
-def upload_to_team_members(instance, filename):
-    """Upload path for team member photos"""
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"team/members/{filename}"
-
-
-def upload_to_team_sections(instance, filename):
-    """Upload path for team section items"""
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"team/sections/{filename}"
-
-
-def upload_to_services(instance, filename):
-    """Upload path for service icons"""
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"services/{filename}"
-
-
-def upload_to_news(instance, filename):
-    """Upload path for news images"""
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"news/{filename}"
-
-
-def upload_to_work_processes(instance, filename):
-    """Upload path for work process images"""
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return f"work-processes/{filename}"
 
 
 class TimestampMixin(models.Model):
@@ -182,10 +116,8 @@ class AboutLogo(TimestampMixin):
     """About logos model"""
     about = models.ForeignKey(About, on_delete=models.CASCADE, related_name='logos')
     
-    # File field for logo
-    image = models.ImageField(upload_to=upload_to_about_logos, blank=True, null=True)
-    # URL field (automatically populated from file)
-    image_url = models.URLField(blank=True, null=True)
+    # URL field matching backend database structure exactly
+    image_url = models.URLField()
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -197,21 +129,14 @@ class AboutLogo(TimestampMixin):
     def __str__(self):
         return f"About Logo {self.order}"
 
-    def save(self, *args, **kwargs):
-        if self.image:
-            self.image_url = f"/uploads/{self.image.name}"
-        super().save(*args, **kwargs)
-
 
 class Service(TimestampMixin):
     """Services model"""
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     
-    # File field for icon
-    icon = models.ImageField(upload_to=upload_to_services, blank=True, null=True)
-    # URL field (automatically populated from file)
-    icon_url = models.URLField(blank=True, null=True)
+    # URL field matching backend database structure exactly
+    icon_url = models.URLField()
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -222,11 +147,6 @@ class Service(TimestampMixin):
 
     def __str__(self):
         return self.title
-
-    def save(self, *args, **kwargs):
-        if self.icon:
-            self.icon_url = f"/uploads/{self.icon.name}"
-        super().save(*args, **kwargs)
 
 
 class ServiceBenefit(TimestampMixin):
@@ -251,10 +171,8 @@ class News(TimestampMixin):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     
-    # File field for image
-    image = models.ImageField(upload_to=upload_to_news, blank=True, null=True)
-    # URL field (automatically populated from file)
-    image_url = models.URLField(blank=True, null=True)
+    # URL field matching backend database structure exactly
+    image_url = models.URLField()
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -266,21 +184,14 @@ class News(TimestampMixin):
     def __str__(self):
         return self.title
 
-    def save(self, *args, **kwargs):
-        if self.image:
-            self.image_url = f"/uploads/{self.image.name}"
-        super().save(*args, **kwargs)
-
 
 class TeamMember(TimestampMixin):
     """Team members model"""
     full_name = models.CharField(max_length=200)
     role = models.CharField(max_length=100, blank=True, null=True)
     
-    # File field for photo
-    photo = models.ImageField(upload_to=upload_to_team_members, blank=True, null=True)
-    # URL field (automatically populated from file)
-    photo_url = models.URLField(blank=True, null=True)
+    # URL field matching backend database structure exactly
+    photo_url = models.URLField()
 
     class Meta:
         db_table = 'team_members'
@@ -289,11 +200,6 @@ class TeamMember(TimestampMixin):
 
     def __str__(self):
         return self.full_name
-
-    def save(self, *args, **kwargs):
-        if self.photo:
-            self.photo_url = f"/uploads/{self.photo.name}"
-        super().save(*args, **kwargs)
 
 
 class TeamSection(TimestampMixin):
@@ -320,10 +226,8 @@ class TeamSectionItem(TimestampMixin):
     department = models.CharField(max_length=100, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     
-    # File field for photo
-    photo = models.ImageField(upload_to=upload_to_team_sections, blank=True, null=True)
-    # URL field (automatically populated from file)
-    photo_url = models.URLField(blank=True, null=True)
+    # URL field matching backend database structure exactly
+    photo_url = models.URLField()
     display_order = models.IntegerField(default=0)
 
     class Meta:
@@ -335,21 +239,14 @@ class TeamSectionItem(TimestampMixin):
     def __str__(self):
         return f"{self.team_section.title} - {self.name}"
 
-    def save(self, *args, **kwargs):
-        if self.photo:
-            self.photo_url = f"/uploads/{self.photo.name}"
-        super().save(*args, **kwargs)
-
 
 class WorkProcess(TimestampMixin):
     """Work processes model"""
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     
-    # File field for image
-    image = models.ImageField(upload_to=upload_to_work_processes, blank=True, null=True)
-    # URL field (automatically populated from file)
-    photo_url = models.URLField(blank=True, null=True)
+    # URL field matching backend database structure exactly
+    image_url = models.URLField()
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -360,11 +257,6 @@ class WorkProcess(TimestampMixin):
 
     def __str__(self):
         return self.title
-
-    def save(self, *args, **kwargs):
-        if self.image:
-            self.photo_url = f"/uploads/{self.image.name}"
-        super().save(*args, **kwargs)
 
 
 class Approach(TimestampMixin):
