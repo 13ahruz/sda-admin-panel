@@ -2,10 +2,10 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import (
+from .models_fixed import (
     PropertySector, Project, ProjectPhoto, Partner, PartnerLogo,
     About, AboutLogo, Service, ServiceBenefit, News, TeamMember,
-    TeamSection, TeamSectionItem, WorkProcess, Approach, ContactMessage
+    TeamSection, TeamSectionItem, WorkProcess, Approach, Contact
 )
 
 
@@ -239,16 +239,19 @@ class ApproachAdmin(BaseAdmin):
     fields = ('title', 'description', 'order', 'created_at', 'updated_at')
 
 
-@admin.register(ContactMessage)
-class ContactMessageAdmin(BaseAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'phone_number', 'created_at')
-    search_fields = ('first_name', 'last_name', 'email', 'phone_number', 'message')
-    list_filter = ('created_at',)
+@admin.register(Contact)
+class ContactAdmin(BaseAdmin):
+    list_display = ('email', 'phone', 'created_at')
+    search_fields = ('email', 'phone', 'address')
     fields = (
-        'first_name', 'last_name', 'phone_number', 'email', 'message', 'cv_url',
+        'address', 'phone', 'email',
+        'linkedin', 'instagram', 'youtube',
         'created_at', 'updated_at'
     )
-    readonly_fields = ('created_at', 'updated_at')
+
+    def has_add_permission(self, request):
+        # Only allow one contact record
+        return not Contact.objects.exists()
 
 
 # Customize admin site
