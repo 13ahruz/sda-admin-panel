@@ -273,7 +273,7 @@ class ProjectPhoto(TimestampMixin):
         verbose_name = 'Project Photo'
         verbose_name_plural = 'Project Photos'
         indexes = [
-            models.Index(fields=['project', 'order'], name='ix_project_photos_project_order'),
+            models.Index(fields=['project', 'order'], name='ix_project_photos_proj_order'),
         ]
     
     def __str__(self):
@@ -327,7 +327,7 @@ class TeamSectionItem(TimestampMixin):
         verbose_name = 'Team Section Item'
         verbose_name_plural = 'Team Section Items'
         indexes = [
-            models.Index(fields=['team_section', 'order'], name='ix_team_section_items_section_order'),
+            models.Index(fields=['team_section', 'order'], name='ix_team_section_items_order'),
         ]
     
     def __str__(self):
