@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models_fixed import (
+from .models import (
     PropertySector, Project, ProjectPhoto, Partner, PartnerLogo,
     About, AboutLogo, Service, ServiceBenefit, News, TeamMember,
     TeamSection, TeamSectionItem, WorkProcess, Approach, Contact
