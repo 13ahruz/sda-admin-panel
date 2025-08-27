@@ -36,15 +36,18 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
                     result = response.json()
                     return result.get('url', '')
                 else:
-                    # Log the error for debugging
+                    # Log the error for debugging but don't crash
                     print(f"Upload failed: Status {response.status_code}, Response: {response.text}")
-                    raise forms.ValidationError(f"Upload failed: {response.text}")
+                    # Return empty string so user can enter URL manually
+                    return ''
             except requests.exceptions.RequestException as e:
                 print(f"Network error during upload: {str(e)}")
-                raise forms.ValidationError(f"Network error: {str(e)}")
+                # Return empty string so user can enter URL manually
+                return ''
             except Exception as e:
                 print(f"Upload error: {str(e)}")
-                raise forms.ValidationError(f"Upload error: {str(e)}")
+                # Return empty string so user can enter URL manually
+                return ''
         
         # Return existing URL if no new file uploaded (allow manual URL entry)
         url_value = data.get(name, '')
