@@ -14,16 +14,41 @@ class TimestampMixin(models.Model):
 
 class PropertySector(TimestampMixin):
     """Property sectors model"""
-    name = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
+    order = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'property_sectors'
         verbose_name = 'Property Sector'
         verbose_name_plural = 'Property Sectors'
+        ordering = ['order']
 
     def __str__(self):
-        return self.name
+        return self.title
+
+
+class SectorInn(TimestampMixin):
+    """Sector inn model"""
+    property_sector = models.ForeignKey(PropertySector, on_delete=models.CASCADE, related_name='inns')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'sector_inns'
+        verbose_name = 'Sector Inn'
+        verbose_name_plural = 'Sector Inns'
+        ordering = ['property_sector', 'order']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['property_sector', 'title'],
+                name='uq_sector_inns_sector_title'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.property_sector.title} - {self.title}"
 
 
 class Project(TimestampMixin):

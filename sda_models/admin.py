@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from .models import (
-    PropertySector, Project, ProjectPhoto, Partner, PartnerLogo,
+    PropertySector, SectorInn, Project, ProjectPhoto, Partner, PartnerLogo,
     About, AboutLogo, Service, ServiceBenefit, News, TeamMember,
     TeamSection, TeamSectionItem, WorkProcess, Approach, ContactMessage
 )
@@ -69,6 +69,12 @@ class ServiceBenefitInline(admin.TabularInline):
     fields = ('title', 'description', 'order')
 
 
+class SectorInnInline(admin.TabularInline):
+    model = SectorInn
+    extra = 1
+    fields = ('title', 'description', 'order')
+
+
 class TeamSectionItemInline(admin.TabularInline):
     model = TeamSectionItem
     extra = 1
@@ -79,9 +85,21 @@ class TeamSectionItemInline(admin.TabularInline):
 # Main admin classes
 @admin.register(PropertySector)
 class PropertySectorAdmin(BaseAdmin):
-    list_display = ('name', 'description', 'created_at')
-    search_fields = ('name', 'description')
+    list_display = ('title', 'description', 'order', 'created_at')
+    search_fields = ('title', 'description')
     list_filter = ('created_at',)
+    fields = ('title', 'description', 'order', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
+    inlines = [SectorInnInline]
+
+
+@admin.register(SectorInn)
+class SectorInnAdmin(BaseAdmin):
+    list_display = ('property_sector', 'title', 'order', 'created_at')
+    list_filter = ('property_sector', 'created_at')
+    search_fields = ('title', 'description', 'property_sector__title')
+    fields = ('property_sector', 'title', 'description', 'order', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(Project)
