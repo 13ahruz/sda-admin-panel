@@ -72,8 +72,8 @@ class ServiceBenefitInline(admin.TabularInline):
 class TeamSectionItemInline(admin.TabularInline):
     model = TeamSectionItem
     extra = 1
-    fields = ('name', 'position', 'photo', 'photo_url', 'display_order')
-    readonly_fields = ('photo_url',)
+    fields = ('name', 'position', 'photo_url', 'display_order')
+    readonly_fields = ()
 
 
 # Main admin classes
@@ -91,10 +91,10 @@ class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
     search_fields = ('title', 'client', 'tag')
     fields = (
         'title', 'tag', 'client', 'year', 'property_sector',
-        'cover_photo', 'cover_photo_url',
+        'cover_photo_url',
         'created_at', 'updated_at'
     )
-    readonly_fields = ('cover_photo_url', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
     inlines = [ProjectPhotoInline]
 
     def get_queryset(self, request):
@@ -106,8 +106,8 @@ class ProjectPhotoAdmin(BaseAdmin, ImagePreviewMixin):
     list_display = ('project', 'image_preview', 'order', 'created_at')
     list_filter = ('project', 'created_at')
     search_fields = ('project__title',)
-    fields = ('project', 'image', 'image_url', 'order', 'created_at', 'updated_at')
-    readonly_fields = ('image_url', 'created_at', 'updated_at')
+    fields = ('project', 'image_url', 'order', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(Partner)
@@ -127,8 +127,8 @@ class PartnerLogoAdmin(BaseAdmin, ImagePreviewMixin):
     list_display = ('partner', 'image_preview', 'order', 'created_at')
     list_filter = ('partner', 'created_at')
     search_fields = ('partner__title',)
-    fields = ('partner', 'image', 'image_url', 'order', 'created_at', 'updated_at')
-    readonly_fields = ('image_url', 'created_at', 'updated_at')
+    fields = ('partner', 'image_url', 'order', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(About)
@@ -144,8 +144,8 @@ class AboutAdmin(BaseAdmin):
 class AboutLogoAdmin(BaseAdmin, ImagePreviewMixin):
     list_display = ('about', 'image_preview', 'order', 'created_at')
     list_filter = ('about', 'created_at')
-    fields = ('about', 'image', 'image_url', 'order', 'created_at', 'updated_at')
-    readonly_fields = ('image_url', 'created_at', 'updated_at')
+    fields = ('about', 'image_url', 'order', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(Service)
@@ -219,8 +219,8 @@ class WorkProcessAdmin(BaseAdmin, ImagePreviewMixin):
     list_display = ('title', 'image_preview', 'order', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('title', 'description')
-    fields = ('title', 'description', 'image', 'photo_url', 'order', 'created_at', 'updated_at')
-    readonly_fields = ('photo_url', 'created_at', 'updated_at')
+    fields = ('title', 'description', 'image_url', 'order', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(Approach)
