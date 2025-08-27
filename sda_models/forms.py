@@ -10,9 +10,9 @@ from .widgets import BackendImageField
 class ProjectAdminForm(forms.ModelForm):
     cover_photo_url = BackendImageField(
         label="Cover Photo",
-        help_text="Upload an image file or enter a URL",
+        help_text="Upload an image file",
         required=False,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda_web_1:8000/upload')
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
@@ -23,9 +23,9 @@ class ProjectAdminForm(forms.ModelForm):
 class ProjectPhotoAdminForm(forms.ModelForm):
     image_url = BackendImageField(
         label="Photo",
-        help_text="Upload an image file or enter a URL",
+        help_text="Upload an image file",
         required=True,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda_web_1:8000/upload')
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
@@ -38,7 +38,7 @@ class PartnerLogoAdminForm(forms.ModelForm):
         label="Logo",
         help_text="Upload an image file or enter a URL",
         required=True,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda_web_1:8000/upload')
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
@@ -51,7 +51,7 @@ class AboutLogoAdminForm(forms.ModelForm):
         label="Logo",
         help_text="Upload an image file or enter a URL",
         required=True,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda_web_1:8000/upload')
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
@@ -64,7 +64,7 @@ class ServiceAdminForm(forms.ModelForm):
         label="Icon",
         help_text="Upload an image file or enter a URL",
         required=True,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda_web_1:8000/upload')
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
@@ -77,7 +77,7 @@ class NewsAdminForm(forms.ModelForm):
         label="Image",
         help_text="Upload an image file or enter a URL",
         required=True,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda_web_1:8000/upload')
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
@@ -90,7 +90,7 @@ class TeamMemberAdminForm(forms.ModelForm):
         label="Photo",
         help_text="Upload an image file or enter a URL",
         required=True,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda_web_1:8000/upload')
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
@@ -103,7 +103,7 @@ class TeamSectionItemAdminForm(forms.ModelForm):
         label="Photo",
         help_text="Upload an image file or enter a URL",
         required=True,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda_web_1:8000/upload')
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
@@ -116,7 +116,7 @@ class WorkProcessAdminForm(forms.ModelForm):
         label="Image",
         help_text="Upload an image file or enter a URL",
         required=True,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda_web_1:8000/upload')
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:

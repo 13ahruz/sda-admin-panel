@@ -8,11 +8,10 @@ from .models import (
     TeamSection, TeamSectionItem, WorkProcess, Approach, ContactMessage
 )
 from .forms import (
-    ProjectPhotoAdminForm, PartnerLogoAdminForm, 
+    ProjectAdminForm, ProjectPhotoAdminForm, PartnerLogoAdminForm, 
     AboutLogoAdminForm, ServiceAdminForm, NewsAdminForm, 
     TeamMemberAdminForm, TeamSectionItemAdminForm, WorkProcessAdminForm
 )
-from .simple_forms import ProjectSimpleAdminForm
 
 
 class BaseAdmin(admin.ModelAdmin):
@@ -143,7 +142,7 @@ class SectorInnAdmin(BaseAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
-    form = ProjectSimpleAdminForm
+    form = ProjectAdminForm
     list_display = ('title', 'tag', 'client', 'year', 'property_sector', 'image_preview', 'created_at')
     list_filter = ('property_sector', 'year', 'tag', 'created_at')
     search_fields = ('title', 'client', 'tag')
