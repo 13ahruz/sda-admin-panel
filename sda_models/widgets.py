@@ -11,7 +11,6 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
     """
     Widget that uploads files to the backend API and stores the returned URL
     """
-    template_name = 'admin/widgets/file_upload_backend.html'
     
     def __init__(self, backend_url=None, *args, **kwargs):
         self.backend_url = backend_url or getattr(settings, 'BACKEND_UPLOAD_URL', 'http://localhost:8000/upload')
