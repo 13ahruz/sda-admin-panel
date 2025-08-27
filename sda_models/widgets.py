@@ -13,7 +13,7 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
     """
     
     def __init__(self, backend_url=None, *args, **kwargs):
-        self.backend_url = backend_url or getattr(settings, 'BACKEND_UPLOAD_URL', 'http://localhost:8000/upload')
+        self.backend_url = backend_url or getattr(settings, 'BACKEND_UPLOAD_URL', 'http://sda-backend:8000/api/v1/upload')
         super().__init__(*args, **kwargs)
     
     def format_value(self, value):
@@ -36,12 +36,21 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
                     result = response.json()
                     return result.get('url', '')
                 else:
+                    # Log the error for debugging
+                    print(f"Upload failed: Status {response.status_code}, Response: {response.text}")
                     raise forms.ValidationError(f"Upload failed: {response.text}")
+            except requests.exceptions.RequestException as e:
+                print(f"Network error during upload: {str(e)}")
+                raise forms.ValidationError(f"Network error: {str(e)}")
             except Exception as e:
+                print(f"Upload error: {str(e)}")
                 raise forms.ValidationError(f"Upload error: {str(e)}")
         
-        # Return existing URL if no new file uploaded
-        return data.get(name, '')
+        # Return existing URL if no new file uploaded (allow manual URL entry)
+        url_value = data.get(name, '')
+        if url_value and isinstance(url_value, str):
+            return url_value.strip()
+        return ''
 
 
 class ImagePreviewWidget(FileUploadToBackendWidget):
@@ -86,3 +95,13 @@ class BackendImageField(BackendUrlField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('widget', self.widget(backend_url=kwargs.pop('backend_url', None)))
         super().__init__(*args, **kwargs)
+
+
+class SimpleUrlField(forms.URLField):
+    """
+    Simple URL field for manual URL entry (no file upload)
+    """
+    def __init__(self, **kwargs):
+        kwargs.setdefault('max_length', 500)
+        kwargs.setdefault('help_text', 'Enter the complete URL (e.g., http://example.com/image.jpg)')
+        super().__init__(**kwargs)
