@@ -2,10 +2,22 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import (
-    PropertySector, SectorInn, Project, ProjectPhoto, Partner, PartnerLogo,
+from .models import @admin.register(Service)
+class ServiceAdmin(BaseAdmin, ImagePreviewMixin):
+    form = ServiceAdminForm
+    list_display = ('title', 'image_preview', 'order', 'benefit_count', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('title', 'description')
+    fields = ('title', 'description', 'icon_url', 'order', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
+    inlines = [ServiceBenefitInline]ropertySector, SectorInn, Project, ProjectPhoto, Partner, PartnerLogo,
     About, AboutLogo, Service, ServiceBenefit, News, TeamMember,
     TeamSection, TeamSectionItem, WorkProcess, Approach, ContactMessage
+)
+from .forms import (
+    ProjectAdminForm, ProjectPhotoAdminForm, PartnerLogoAdminForm, 
+    AboutLogoAdminForm, ServiceAdminForm, NewsAdminForm, 
+    TeamMemberAdminForm, TeamSectionItemAdminForm, WorkProcessAdminForm
 )
 
 
@@ -104,6 +116,7 @@ class SectorInnAdmin(BaseAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
+    form = ProjectAdminForm
     list_display = ('title', 'tag', 'client', 'year', 'property_sector', 'image_preview', 'created_at')
     list_filter = ('property_sector', 'year', 'tag', 'created_at')
     search_fields = ('title', 'client', 'tag')
@@ -121,6 +134,7 @@ class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
 
 @admin.register(ProjectPhoto)
 class ProjectPhotoAdmin(BaseAdmin, ImagePreviewMixin):
+    form = ProjectPhotoAdminForm
     list_display = ('project', 'image_preview', 'order', 'created_at')
     list_filter = ('project', 'created_at')
     search_fields = ('project__title',)
@@ -142,6 +156,7 @@ class PartnerAdmin(BaseAdmin):
 
 @admin.register(PartnerLogo)
 class PartnerLogoAdmin(BaseAdmin, ImagePreviewMixin):
+    form = PartnerLogoAdminForm
     list_display = ('partner', 'image_preview', 'order', 'created_at')
     list_filter = ('partner', 'created_at')
     search_fields = ('partner__title',)
@@ -160,6 +175,7 @@ class AboutAdmin(BaseAdmin):
 
 @admin.register(AboutLogo)
 class AboutLogoAdmin(BaseAdmin, ImagePreviewMixin):
+    form = AboutLogoAdminForm
     list_display = ('about', 'image_preview', 'order', 'created_at')
     list_filter = ('about', 'created_at')
     fields = ('about', 'image_url', 'order', 'created_at', 'updated_at')
@@ -168,11 +184,12 @@ class AboutLogoAdmin(BaseAdmin, ImagePreviewMixin):
 
 @admin.register(Service)
 class ServiceAdmin(BaseAdmin, ImagePreviewMixin):
+    form = ServiceAdminForm
     list_display = ('title', 'image_preview', 'order', 'benefit_count', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('title', 'description')
-    fields = ('title', 'description', 'icon', 'icon_url', 'order', 'created_at', 'updated_at')
-    readonly_fields = ('icon_url', 'created_at', 'updated_at')
+    fields = ('title', 'description', 'icon_url', 'order', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
     inlines = [ServiceBenefitInline]
 
     def benefit_count(self, obj):
@@ -190,20 +207,22 @@ class ServiceBenefitAdmin(BaseAdmin):
 
 @admin.register(News)
 class NewsAdmin(BaseAdmin, ImagePreviewMixin):
+    form = NewsAdminForm
     list_display = ('title', 'image_preview', 'order', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('title', 'description')
-    fields = ('title', 'description', 'image', 'image_url', 'order', 'created_at', 'updated_at')
-    readonly_fields = ('image_url', 'created_at', 'updated_at')
+    fields = ('title', 'description', 'image_url', 'order', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(BaseAdmin, ImagePreviewMixin):
+    form = TeamMemberAdminForm
     list_display = ('full_name', 'role', 'image_preview', 'created_at')
     list_filter = ('role', 'created_at')
     search_fields = ('full_name', 'role')
-    fields = ('full_name', 'role', 'photo', 'photo_url', 'created_at', 'updated_at')
-    readonly_fields = ('photo_url', 'created_at', 'updated_at')
+    fields = ('full_name', 'role', 'photo_url', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(TeamSection)
@@ -221,19 +240,21 @@ class TeamSectionAdmin(BaseAdmin):
 
 @admin.register(TeamSectionItem)
 class TeamSectionItemAdmin(BaseAdmin, ImagePreviewMixin):
+    form = TeamSectionItemAdminForm
     list_display = ('name', 'team_section', 'position', 'department', 'image_preview', 'display_order', 'created_at')
     list_filter = ('team_section', 'position', 'department', 'created_at')
     search_fields = ('name', 'position', 'department', 'bio')
     fields = (
         'team_section', 'name', 'position', 'department', 'bio',
-        'photo', 'photo_url', 'display_order',
+        'photo_url', 'display_order',
         'created_at', 'updated_at'
     )
-    readonly_fields = ('photo_url', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 @admin.register(WorkProcess)
 class WorkProcessAdmin(BaseAdmin, ImagePreviewMixin):
+    form = WorkProcessAdminForm
     list_display = ('title', 'image_preview', 'order', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('title', 'description')

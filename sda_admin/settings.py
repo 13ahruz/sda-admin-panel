@@ -133,3 +133,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ADMIN_SITE_HEADER = "SDA Administration"
 ADMIN_SITE_TITLE = "SDA Admin"
 ADMIN_INDEX_TITLE = "Welcome to SDA Administration"
+
+# Backend API integration
+BACKEND_UPLOAD_URL = config('BACKEND_UPLOAD_URL', default='http://sda_web_1:8000/upload')
+BACKEND_BASE_URL = config('BACKEND_BASE_URL', default='http://sda_web_1:8000')
