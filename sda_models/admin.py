@@ -2,15 +2,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import @admin.register(Service)
-class ServiceAdmin(BaseAdmin, ImagePreviewMixin):
-    form = ServiceAdminForm
-    list_display = ('title', 'image_preview', 'order', 'benefit_count', 'created_at')
-    list_filter = ('created_at',)
-    search_fields = ('title', 'description')
-    fields = ('title', 'description', 'icon_url', 'order', 'created_at', 'updated_at')
-    readonly_fields = ('created_at', 'updated_at')
-    inlines = [ServiceBenefitInline]ropertySector, SectorInn, Project, ProjectPhoto, Partner, PartnerLogo,
+from .models import (
+    PropertySector, SectorInn, Project, ProjectPhoto, Partner, PartnerLogo,
     About, AboutLogo, Service, ServiceBenefit, News, TeamMember,
     TeamSection, TeamSectionItem, WorkProcess, Approach, ContactMessage
 )
@@ -23,6 +16,39 @@ from .forms import (
 
 class BaseAdmin(admin.ModelAdmin):
     """Base admin with common functionality"""
+    readonly_fields = ('created_at', 'updated_at')
+    list_per_page = 20
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # editing an existing object
+            return self.readonly_fields + ('created_at', 'updated_at')
+        return self.readonly_fields
+
+
+class ImagePreviewMixin:
+    """Mixin to add image preview functionality"""
+    
+    def image_preview(self, obj):
+        image_url = None
+        
+        # Check for various URL fields
+        if hasattr(obj, 'image_url') and obj.image_url:
+            image_url = obj.image_url
+        elif hasattr(obj, 'photo_url') and obj.photo_url:
+            image_url = obj.photo_url
+        elif hasattr(obj, 'cover_photo_url') and obj.cover_photo_url:
+            image_url = obj.cover_photo_url
+        elif hasattr(obj, 'icon_url') and obj.icon_url:
+            image_url = obj.icon_url
+        
+        if image_url:
+            return format_html(
+                '<img src="{}" style="max-height: 100px; max-width: 200px;" />',
+                image_url
+            )
+        return "No image"
+    
+    image_preview.short_description = "Preview"
     readonly_fields = ('created_at', 'updated_at')
     list_per_page = 20
 
