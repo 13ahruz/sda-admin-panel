@@ -16,47 +16,73 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
         self.backend_url = backend_url or getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
         super().__init__(*args, **kwargs)
     
-    def format_value(self, value):
-        """Display current URL value"""
-        if isinstance(value, str) and value:
-            return value
-        return None
+    def render(self, name, value, attrs=None, renderer=None):
+        """Render the widget with current value and file input"""
+        if attrs is None:
+            attrs = {}
+        
+        # Basic file input
+        file_input = super().render(name, value, attrs, renderer)
+        
+        # Add current value display if exists
+        if value:
+            current_display = f'<p>Current: <a href="{value}" target="_blank">{value}</a></p>'
+        else:
+            current_display = '<p>No file uploaded</p>'
+        
+        return format_html(
+            '<div class="file-upload-widget">{}{}</div>',
+            current_display,
+            file_input
+        )
     
     def value_from_datadict(self, data, files, name):
         """Handle file upload and return URL"""
         upload = files.get(name)
-        if upload:
+        if upload and upload.size > 0:
             # Upload file to backend
             try:
-                print(f"Uploading file to: {self.backend_url}")
+                print(f"[DEBUG] Uploading file '{upload.name}' to: {self.backend_url}")
+                
+                # Reset file pointer to beginning
+                upload.seek(0)
+                
                 response = requests.post(
                     self.backend_url,
-                    files={'file': (upload.name, upload.read(), upload.content_type)}
+                    files={'file': (upload.name, upload.read(), upload.content_type)},
+                    timeout=30
                 )
-                print(f"Upload response: {response.status_code}, {response.text}")
+                
+                print(f"[DEBUG] Upload response: {response.status_code}")
+                print(f"[DEBUG] Response text: {response.text}")
+                
                 if response.status_code == 200:
                     result = response.json()
                     url = result.get('url', '')
-                    print(f"Upload successful, URL: {url}")
-                    return url
+                    print(f"[DEBUG] Upload successful, URL: {url}")
+                    if url:
+                        return url
+                    else:
+                        print("[ERROR] No URL in response")
+                        return ''
                 else:
-                    # Log the error for debugging but don't crash
-                    print(f"Upload failed: Status {response.status_code}, Response: {response.text}")
-                    # Return empty string so form can continue
+                    print(f"[ERROR] Upload failed: Status {response.status_code}, Response: {response.text}")
                     return ''
-            except requests.exceptions.RequestException as e:
-                print(f"Network error during upload: {str(e)}")
-                # Return empty string so form can continue
-                return ''
+                    
             except Exception as e:
-                print(f"Upload error: {str(e)}")
-                # Return empty string so form can continue
+                print(f"[ERROR] Upload exception: {str(e)}")
                 return ''
         
+        # Handle clear checkbox
+        clear = data.get(f'{name}-clear')
+        if clear:
+            return ''
+        
         # Return existing URL if no new file uploaded
-        url_value = data.get(name, '')
-        if url_value and isinstance(url_value, str):
-            return url_value.strip()
+        existing_value = data.get(name, '')
+        if existing_value and isinstance(existing_value, str):
+            return existing_value.strip()
+        
         return ''
 
 

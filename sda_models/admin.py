@@ -10,7 +10,7 @@ from .models import (
 from .forms import (
     ProjectAdminForm, ProjectPhotoAdminForm, PartnerLogoAdminForm, 
     AboutLogoAdminForm, ServiceAdminForm, NewsAdminForm, 
-    TeamMemberAdminForm, TeamSectionItemAdminForm, WorkProcessAdminForm
+    TeamMemberAdminForm, TeamSectionItemAdminForm, WorkProcessAdminForm, ApproachAdminForm
 )
 
 
@@ -290,10 +290,11 @@ class WorkProcessAdmin(BaseAdmin, ImagePreviewMixin):
 
 @admin.register(Approach)
 class ApproachAdmin(BaseAdmin):
-    list_display = ('title', 'order', 'created_at')
+    form = ApproachAdminForm
+    list_display = ('title', 'order', 'icon_url', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('title', 'description')
-    fields = ('title', 'description', 'order', 'created_at', 'updated_at')
+    fields = ('title', 'description', 'icon_url', 'order', 'created_at', 'updated_at')
 
 
 @admin.register(ContactMessage)

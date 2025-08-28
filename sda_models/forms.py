@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from .models import (
     Project, ProjectPhoto, PartnerLogo, AboutLogo, 
-    Service, News, TeamMember, TeamSectionItem, WorkProcess
+    Service, News, TeamMember, TeamSectionItem, WorkProcess, Approach
 )
 from .widgets import BackendImageField
 
@@ -36,7 +36,7 @@ class ProjectPhotoAdminForm(forms.ModelForm):
 class PartnerLogoAdminForm(forms.ModelForm):
     image_url = BackendImageField(
         label="Logo",
-        help_text="Upload an image file or enter a URL",
+        help_text="Upload an image file",
         required=True,
         backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
@@ -49,7 +49,7 @@ class PartnerLogoAdminForm(forms.ModelForm):
 class AboutLogoAdminForm(forms.ModelForm):
     image_url = BackendImageField(
         label="Logo",
-        help_text="Upload an image file or enter a URL",
+        help_text="Upload an image file",
         required=True,
         backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
@@ -62,7 +62,7 @@ class AboutLogoAdminForm(forms.ModelForm):
 class ServiceAdminForm(forms.ModelForm):
     icon_url = BackendImageField(
         label="Icon",
-        help_text="Upload an image file or enter a URL",
+        help_text="Upload an image file",
         required=True,
         backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
@@ -75,7 +75,7 @@ class ServiceAdminForm(forms.ModelForm):
 class NewsAdminForm(forms.ModelForm):
     image_url = BackendImageField(
         label="Image",
-        help_text="Upload an image file or enter a URL",
+        help_text="Upload an image file",
         required=True,
         backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
@@ -88,7 +88,7 @@ class NewsAdminForm(forms.ModelForm):
 class TeamMemberAdminForm(forms.ModelForm):
     photo_url = BackendImageField(
         label="Photo",
-        help_text="Upload an image file or enter a URL",
+        help_text="Upload an image file",
         required=True,
         backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
@@ -101,7 +101,7 @@ class TeamMemberAdminForm(forms.ModelForm):
 class TeamSectionItemAdminForm(forms.ModelForm):
     photo_url = BackendImageField(
         label="Photo",
-        help_text="Upload an image file or enter a URL",
+        help_text="Upload an image file",
         required=True,
         backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
@@ -112,13 +112,26 @@ class TeamSectionItemAdminForm(forms.ModelForm):
 
 
 class WorkProcessAdminForm(forms.ModelForm):
-    image_url = BackendImageField(
-        label="Image",
-        help_text="Upload an image file or enter a URL",
+    icon_url = BackendImageField(
+        label="Icon",
+        help_text="Upload an image file",
         required=True,
         backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
         model = WorkProcess
+        fields = '__all__'
+
+
+class ApproachAdminForm(forms.ModelForm):
+    icon_url = BackendImageField(
+        label="Icon",
+        help_text="Upload an image file",
+        required=False,
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
+    )
+    
+    class Meta:
+        model = Approach
         fields = '__all__'
