@@ -10,7 +10,7 @@ from .models import (
 from .forms import (
     ProjectAdminForm, ProjectPhotoAdminForm, PartnerLogoAdminForm, 
     AboutLogoAdminForm, ServiceAdminForm, NewsAdminForm, 
-    TeamMemberAdminForm, TeamSectionItemAdminForm, WorkProcessAdminForm
+    TeamMemberAdminForm, TeamSectionItemAdminForm, WorkProcessAdminForm, ContactMessageAdminForm
 )
 
 
@@ -99,6 +99,7 @@ class PartnerLogoInline(admin.TabularInline):
 
 class AboutLogoInline(admin.TabularInline):
     model = AboutLogo
+    form = AboutLogoAdminForm
     extra = 1
     fields = ('image_url', 'order')
 
@@ -117,6 +118,7 @@ class SectorInnInline(admin.TabularInline):
 
 class TeamSectionItemInline(admin.TabularInline):
     model = TeamSectionItem
+    form = TeamSectionItemAdminForm
     extra = 1
     fields = ('name', 'position', 'photo_url', 'display_order')
     readonly_fields = ()
@@ -160,7 +162,8 @@ class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
         return super().get_queryset(request).select_related('property_sector')
 
 
-@admin.register(ProjectPhoto)
+# ProjectPhoto admin is handled as inline in ProjectAdmin - no standalone registration needed
+# @admin.register(ProjectPhoto)
 class ProjectPhotoAdmin(BaseAdmin, ImagePreviewMixin):
     form = ProjectPhotoAdminForm
     list_display = ('project', 'image_preview', 'order', 'created_at')
@@ -182,7 +185,8 @@ class PartnerAdmin(BaseAdmin):
     logo_count.short_description = 'Logos'
 
 
-@admin.register(PartnerLogo)
+# PartnerLogo admin is handled as inline in PartnerAdmin - no standalone registration needed
+# @admin.register(PartnerLogo)
 class PartnerLogoAdmin(BaseAdmin, ImagePreviewMixin):
     form = PartnerLogoAdminForm
     list_display = ('partner', 'image_preview', 'order', 'created_at')
@@ -201,7 +205,8 @@ class AboutAdmin(BaseAdmin):
     inlines = [AboutLogoInline]
 
 
-@admin.register(AboutLogo)
+# AboutLogo admin is handled as inline in AboutAdmin - no standalone registration needed
+# @admin.register(AboutLogo)
 class AboutLogoAdmin(BaseAdmin, ImagePreviewMixin):
     form = AboutLogoAdminForm
     list_display = ('about', 'image_preview', 'order', 'created_at')
@@ -300,6 +305,7 @@ class ApproachAdmin(BaseAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(BaseAdmin):
+    form = ContactMessageAdminForm
     list_display = ('first_name', 'last_name', 'email', 'phone_number', 'created_at')
     search_fields = ('first_name', 'last_name', 'email', 'phone_number', 'message')
     list_filter = ('created_at',)

@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from .models import (
     Project, ProjectPhoto, PartnerLogo, AboutLogo, 
-    Service, News, TeamMember, TeamSectionItem, WorkProcess, Approach
+    Service, News, TeamMember, TeamSectionItem, WorkProcess, Approach, ContactMessage
 )
 from .widgets import BackendImageField
 
@@ -112,15 +112,28 @@ class TeamSectionItemAdminForm(forms.ModelForm):
 
 
 class WorkProcessAdminForm(forms.ModelForm):
-    icon_url = BackendImageField(
-        label="Icon",
-        help_text="Upload an image file",
+    image_url = BackendImageField(
+        label="Image",
+        help_text="Upload an image file", 
         required=True,
         backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
     )
     
     class Meta:
         model = WorkProcess
+        fields = '__all__'
+
+
+class ContactMessageAdminForm(forms.ModelForm):
+    cv_url = BackendImageField(
+        label="CV/Resume",
+        help_text="Upload CV or resume file",
+        required=False,
+        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
+    )
+    
+    class Meta:
+        model = ContactMessage
         fields = '__all__'
 
 
