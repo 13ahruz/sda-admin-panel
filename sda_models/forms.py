@@ -124,14 +124,3 @@ class WorkProcessAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
-class ApproachAdminForm(forms.ModelForm):
-    icon_url = BackendImageField(
-        label="Icon",
-        help_text="Upload an image file",
-        required=False,
-        backend_url=getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
-    )
-    
-    class Meta:
-        model = Approach
-        fields = '__all__'
