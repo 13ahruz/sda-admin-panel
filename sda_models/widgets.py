@@ -38,6 +38,10 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
     
     def value_from_datadict(self, data, files, name):
         """Handle file upload and return URL"""
+        print(f"[DEBUG] value_from_datadict called for field: {name}")
+        print(f"[DEBUG] Files received: {list(files.keys())}")
+        print(f"[DEBUG] Data received: {list(data.keys())}")
+        
         upload = files.get(name)
         if upload and hasattr(upload, 'read') and upload.size > 0:
             # Upload file to backend
@@ -49,6 +53,9 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
                 file_content = upload.read()
                 upload.seek(0)  # Reset again for potential reuse
                 
+                print(f"[DEBUG] File content length: {len(file_content)}")
+                print(f"[DEBUG] Content type: {upload.content_type}")
+                
                 response = requests.post(
                     self.backend_url,
                     files={'file': (upload.name, file_content, upload.content_type or 'application/octet-stream')},
@@ -56,6 +63,7 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
                 )
                 
                 print(f"[DEBUG] Upload response: {response.status_code}")
+                print(f"[DEBUG] Response headers: {dict(response.headers)}")
                 print(f"[DEBUG] Response text: {response.text}")
                 
                 if response.status_code == 200:
@@ -63,6 +71,7 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
                     url = result.get('url', '')
                     print(f"[DEBUG] Upload successful, URL: {url}")
                     if url:
+                        print(f"[DEBUG] Returning URL: {url}")
                         return url
                     else:
                         print("[ERROR] No URL in response")
@@ -76,17 +85,24 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
                 import traceback
                 print(f"[ERROR] Traceback: {traceback.format_exc()}")
                 return ''
+        else:
+            print(f"[DEBUG] No file upload for field {name}")
+            if upload:
+                print(f"[DEBUG] Upload object exists but size: {getattr(upload, 'size', 'unknown')}")
         
         # Handle clear checkbox
         clear = data.get(f'{name}-clear')
         if clear:
+            print(f"[DEBUG] Clear checkbox checked for {name}")
             return ''
         
         # Return existing URL if no new file uploaded
         existing_value = data.get(name, '')
         if existing_value and isinstance(existing_value, str):
+            print(f"[DEBUG] Returning existing value: {existing_value}")
             return existing_value.strip()
         
+        print(f"[DEBUG] No value to return for {name}")
         return ''
 
 
