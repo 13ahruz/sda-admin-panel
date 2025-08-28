@@ -85,12 +85,14 @@ class ImagePreviewMixin:
 # Inline classes
 class ProjectPhotoInline(admin.TabularInline):
     model = ProjectPhoto
+    form = ProjectPhotoAdminForm
     extra = 1
     fields = ('image_url', 'order')
 
 
 class PartnerLogoInline(admin.TabularInline):
     model = PartnerLogo
+    form = PartnerLogoAdminForm
     extra = 1
     fields = ('image_url', 'order')
 

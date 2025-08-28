@@ -39,17 +39,19 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
     def value_from_datadict(self, data, files, name):
         """Handle file upload and return URL"""
         upload = files.get(name)
-        if upload and upload.size > 0:
+        if upload and hasattr(upload, 'read') and upload.size > 0:
             # Upload file to backend
             try:
-                print(f"[DEBUG] Uploading file '{upload.name}' to: {self.backend_url}")
+                print(f"[DEBUG] Uploading file '{upload.name}' (size: {upload.size}) to: {self.backend_url}")
                 
                 # Reset file pointer to beginning
                 upload.seek(0)
+                file_content = upload.read()
+                upload.seek(0)  # Reset again for potential reuse
                 
                 response = requests.post(
                     self.backend_url,
-                    files={'file': (upload.name, upload.read(), upload.content_type)},
+                    files={'file': (upload.name, file_content, upload.content_type or 'application/octet-stream')},
                     timeout=30
                 )
                 
@@ -71,6 +73,8 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
                     
             except Exception as e:
                 print(f"[ERROR] Upload exception: {str(e)}")
+                import traceback
+                print(f"[ERROR] Traceback: {traceback.format_exc()}")
                 return ''
         
         # Handle clear checkbox
@@ -107,26 +111,29 @@ class ImagePreviewWidget(FileUploadToBackendWidget):
         return mark_safe(html)
 
 
-class BackendUrlField(forms.URLField):
+class BackendUrlField(forms.CharField):
     """
-    Field that handles file uploads through the backend
+    Field that handles file uploads through the backend and stores URLs
     """
     widget = FileUploadToBackendWidget
     
     def __init__(self, backend_url=None, *args, **kwargs):
         self.backend_url = backend_url
+        kwargs.setdefault('max_length', 500)
         kwargs.setdefault('widget', self.widget(backend_url=backend_url))
         super().__init__(*args, **kwargs)
 
 
-class BackendImageField(BackendUrlField):
+class BackendImageField(forms.CharField):
     """
     Field specifically for image uploads with preview
     """
     widget = ImagePreviewWidget
     
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('widget', self.widget(backend_url=kwargs.pop('backend_url', None)))
+    def __init__(self, backend_url=None, *args, **kwargs):
+        self.backend_url = backend_url
+        kwargs.setdefault('max_length', 500)
+        kwargs.setdefault('widget', self.widget(backend_url=backend_url))
         super().__init__(*args, **kwargs)
 
 
