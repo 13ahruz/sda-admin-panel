@@ -136,8 +136,18 @@ class BackendUrlField(forms.CharField):
     def __init__(self, backend_url=None, *args, **kwargs):
         self.backend_url = backend_url
         kwargs.setdefault('max_length', 500)
+        kwargs.setdefault('required', False)  # Make sure it's not required validation
         kwargs.setdefault('widget', self.widget(backend_url=backend_url))
         super().__init__(*args, **kwargs)
+    
+    def clean(self, value):
+        """Custom clean method to handle file upload results"""
+        print(f"[DEBUG] BackendUrlField.clean called with value: {value}")
+        if value is None:
+            value = ''
+        if not value and not self.required:
+            return ''
+        return super().clean(value)
 
 
 class BackendImageField(forms.CharField):
@@ -149,8 +159,19 @@ class BackendImageField(forms.CharField):
     def __init__(self, backend_url=None, *args, **kwargs):
         self.backend_url = backend_url
         kwargs.setdefault('max_length', 500)
+        kwargs.setdefault('required', False)  # Make sure it's not required validation
         kwargs.setdefault('widget', self.widget(backend_url=backend_url))
         super().__init__(*args, **kwargs)
+    
+    def clean(self, value):
+        """Custom clean method to handle file upload results"""
+        print(f"[DEBUG] BackendImageField.clean called with value: {value}")
+        # Don't call super().clean() if value is empty but file was uploaded
+        if value is None:
+            value = ''
+        if not value and not self.required:
+            return ''
+        return super().clean(value)
 
 
 class SimpleUrlField(forms.URLField):
