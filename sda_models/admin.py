@@ -134,7 +134,7 @@ class NewsSectionInline(admin.TabularInline):
 class TeamSectionItemInline(admin.TabularInline):
     model = TeamSectionItem
     extra = 1
-    fields = ('title', 'description', 'order')
+    fields = ('name', 'description', 'photo_url', 'button_text', 'order')
 
 
 # Main admin classes
@@ -256,12 +256,47 @@ class TeamSectionAdmin(BaseAdmin):
     inlines = [TeamSectionItemInline]
 
 
+class TeamSectionItemAdminForm(forms.ModelForm):
+    photo_upload = forms.ImageField(
+        required=False,
+        help_text="Upload photo for team section item"
+    )
+    
+    class Meta:
+        model = TeamSectionItem
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.photo_url:
+            self.fields['photo_upload'].help_text = f"Current photo: {self.instance.photo_url}"
+
+
 @admin.register(TeamSectionItem)
-class TeamSectionItemAdmin(BaseAdmin):
-    list_display = ('title', 'team_section', 'description', 'order', 'created_at')
+class TeamSectionItemAdmin(BaseAdmin, ImagePreviewMixin):
+    form = TeamSectionItemAdminForm
+    list_display = ('name', 'team_section', 'description', 'order', 'image_preview', 'created_at')
     list_filter = ('team_section', 'created_at')
-    search_fields = ('title', 'description', 'team_section__title')
-    fields = ('team_section', 'title', 'description', 'order', 'created_at', 'updated_at')
+    search_fields = ('name', 'description', 'team_section__title')
+    fieldsets = (
+        ('Basic Info', {
+            'fields': ('team_section', 'name', 'description', 'button_text', 'order')
+        }),
+        ('Photo', {
+            'fields': ('photo_upload', 'photo_url'),
+            'description': 'You can either upload a file or enter a URL directly.'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        if 'photo_upload' in form.cleaned_data and form.cleaned_data['photo_upload']:
+            uploaded_file = form.cleaned_data['photo_upload']
+            obj.photo_url = f"/media/team_items/{uploaded_file.name}"
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Service)
@@ -300,12 +335,39 @@ class ServiceBenefitAdmin(BaseAdmin):
     fields = ('title', 'description', 'order', 'created_at', 'updated_at')
 
 
+class ContactMessageAdminForm(forms.ModelForm):
+    cv_upload = forms.FileField(
+        required=False,
+        help_text="Upload CV file (PDF, DOC, DOCX)"
+    )
+    
+    class Meta:
+        model = ContactMessage
+        fields = '__all__'
+        widgets = {
+            'message': forms.Textarea(attrs={'rows': 4}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.cv_url:
+            self.fields['cv_upload'].help_text = f"Current CV: {self.instance.cv_url}"
+
+
 @admin.register(ContactMessage)
 class ContactMessageAdmin(BaseAdmin):
+    form = ContactMessageAdminForm
     list_display = ('first_name', 'last_name', 'email', 'phone_number', 'created_at')
     search_fields = ('first_name', 'last_name', 'email', 'phone_number', 'message')
     list_filter = ('created_at',)
-    fields = ('first_name', 'last_name', 'phone_number', 'email', 'message', 'cv_url', 'created_at', 'updated_at')
+    fields = ('first_name', 'last_name', 'phone_number', 'email', 'message', 'cv_url', 'cv_upload', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def save_model(self, request, obj, form, change):
+        if form.cleaned_data.get('cv_upload'):
+            uploaded_file = form.cleaned_data['cv_upload']
+            obj.cv_url = f"/media/contact/{uploaded_file.name}"
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Approach)

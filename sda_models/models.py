@@ -188,8 +188,10 @@ class TeamSection(TimestampMixin):
 class TeamSectionItem(TimestampMixin):
     """Team section items model"""
     team_section = models.ForeignKey(TeamSection, on_delete=models.CASCADE, related_name='items')
-    title = models.TextField(help_text="Item title")
+    name = models.TextField(help_text="Item name")
     description = models.TextField(blank=True, null=True, help_text="Item description")
+    photo_url = models.TextField(blank=True, null=True, help_text="Photo URL")
+    button_text = models.TextField(blank=True, null=True, help_text="Button text")
     order = models.IntegerField(default=0, help_text="Display order")
     
     class Meta:
@@ -199,7 +201,7 @@ class TeamSectionItem(TimestampMixin):
         ordering = ['order']
     
     def __str__(self):
-        return f"{self.title} ({self.team_section.title})"
+        return f"{self.name} ({self.team_section.title})"
 
 
 class Service(TimestampMixin):
