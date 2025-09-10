@@ -11,7 +11,7 @@ from django.conf import settings
 def upload_file_to_backend(file, file_type="image"):
     """Upload file to FastAPI backend and return the URL"""
     try:
-        backend_url = getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
+        backend_url = getattr(settings, 'BACKEND_UPLOAD_URL', 'https://sdaconsulting.az/api/v1/upload')
         
         files = {'file': (file.name, file.read(), file.content_type)}
         data = {'file_type': file_type}
