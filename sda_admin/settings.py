@@ -61,7 +61,7 @@ DATABASES = {
         'NAME': config('DB_NAME', default='sda_db'),
         'USER': config('DB_USER', default='sda_user'),
         'PASSWORD': config('DB_PASSWORD', default='sda_password'),
-        'HOST': config('DB_HOST', default='sda-postgres'),
+        'HOST': config('DB_HOST', default='db'),
         'PORT': config('DB_PORT', default='5432'),
     }
 }
