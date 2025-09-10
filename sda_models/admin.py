@@ -404,19 +404,19 @@ class ApproachAdmin(BaseAdmin):
 
 @admin.register(WorkProcess)
 class WorkProcessAdmin(BaseAdmin):
-    list_display = ('title', 'description', 'step_number', 'created_at')
+    list_display = ('title', 'description', 'order', 'created_at')
     search_fields = ('title', 'description')
     list_filter = ('created_at',)
-    fields = ('title', 'description', 'step_number', 'created_at', 'updated_at')
-    ordering = ['step_number']
+    fields = ('title', 'description', 'order', 'image_url', 'created_at', 'updated_at')
+    ordering = ['order']
 
 
 @admin.register(Partner)
 class PartnerAdmin(BaseAdmin):
-    list_display = ('name', 'created_at')
-    search_fields = ('name',)
+    list_display = ('title', 'button_text', 'created_at')
+    search_fields = ('title', 'button_text')
     list_filter = ('created_at',)
-    fields = ('name', 'created_at', 'updated_at')
+    fields = ('title', 'button_text', 'created_at', 'updated_at')
     inlines = [PartnerLogoInline]
 
 
@@ -424,7 +424,7 @@ class PartnerAdmin(BaseAdmin):
 class PartnerLogoAdmin(BaseAdmin, ImagePreviewMixin):
     list_display = ('partner', 'image_preview', 'order', 'created_at')
     list_filter = ('partner', 'created_at')
-    search_fields = ('partner__name',)
+    search_fields = ('partner__title',)
     fields = ('partner', 'logo_url', 'order', 'created_at', 'updated_at')
 
 
