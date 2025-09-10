@@ -2,29 +2,6 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 
-# Upload function definitions
-def upload_to_project_covers(instance, filename):
-    return f"projects/covers/{filename}"
-
-def upload_to_project_photos(instance, filename):
-    return f"projects/photos/{filename}"
-
-def upload_to_news_photos(instance, filename):
-    return f"news/photos/{filename}"
-
-def upload_to_team_photos(instance, filename):
-    return f"team/photos/{filename}"
-
-def upload_to_service_icons(instance, filename):
-    return f"services/icons/{filename}"
-
-def upload_to_partner_logos(instance, filename):
-    return f"partners/logos/{filename}"
-
-def upload_to_work_process_images(instance, filename):
-    return f"work_process/images/{filename}"
-
-
 class TimestampMixin(models.Model):
     """Mixin for created_at and updated_at fields to match SQLAlchemy backend"""
     created_at = models.DateTimeField(auto_now_add=True)
@@ -115,21 +92,13 @@ class Project(TimestampMixin):
         blank=True,
         related_name='projects'
     )
-    # Cover photo with file upload support
-    cover_photo_file = models.ImageField(upload_to=upload_to_project_covers, blank=True, null=True, help_text="Upload cover photo")
-    cover_photo_url = models.TextField(blank=True, null=True, help_text="Cover photo URL (auto-filled on file upload)")
+    cover_photo_url = models.TextField(blank=True, null=True, help_text="Cover photo URL")
     
     class Meta:
         db_table = 'projects'
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
         ordering = ['-year', 'title']
-    
-    def save(self, *args, **kwargs):
-        # If file is uploaded, generate URL
-        if self.cover_photo_file:
-            self.cover_photo_url = self.cover_photo_file.url
-        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.title
@@ -138,9 +107,7 @@ class Project(TimestampMixin):
 class ProjectPhoto(TimestampMixin):
     """Project photos model"""
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='photos')
-    # Photo with file upload support
-    image_file = models.ImageField(upload_to=upload_to_project_photos, blank=True, null=True, help_text="Upload photo")
-    image_url = models.TextField(blank=True, help_text="Photo URL (auto-filled on file upload)")
+    image_url = models.TextField(blank=True, help_text="Photo URL")
     order = models.IntegerField(default=0, help_text="Display order")
     
     class Meta:
@@ -148,12 +115,6 @@ class ProjectPhoto(TimestampMixin):
         verbose_name = 'Project Photo'
         verbose_name_plural = 'Project Photos'
         ordering = ['order']
-    
-    def save(self, *args, **kwargs):
-        # If file is uploaded, generate URL
-        if self.image_file:
-            self.image_url = self.image_file.url
-        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"Photo {self.order} for {self.project.title}"
@@ -163,9 +124,7 @@ class News(TimestampMixin):
     """News articles model"""
     title = models.TextField(help_text="News title")
     summary = models.TextField(blank=True, null=True, help_text="News summary")
-    # Photo with file upload support
-    photo_file = models.ImageField(upload_to=upload_to_news_photos, blank=True, null=True, help_text="Upload news photo")
-    photo_url = models.TextField(blank=True, null=True, help_text="News photo URL (auto-filled on file upload)")
+    photo_url = models.TextField(blank=True, null=True, help_text="News photo URL")
     tags = ArrayField(models.TextField(), blank=True, default=list, help_text="News tags")
     
     class Meta:
@@ -173,12 +132,6 @@ class News(TimestampMixin):
         verbose_name = 'News Article'
         verbose_name_plural = 'News Articles'
         ordering = ['-created_at']
-    
-    def save(self, *args, **kwargs):
-        # If file is uploaded, generate URL
-        if self.photo_file:
-            self.photo_url = self.photo_file.url
-        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.title
@@ -190,21 +143,13 @@ class NewsSection(TimestampMixin):
     order = models.IntegerField(default=0, help_text="Section order")
     heading = models.TextField(blank=True, null=True, help_text="Section heading")
     content = models.TextField(blank=True, null=True, help_text="Section content")
-    # Image with file upload support
-    image_file = models.ImageField(upload_to=upload_to_news_photos, blank=True, null=True, help_text="Upload section image")
-    image_url = models.TextField(blank=True, null=True, help_text="Section image URL (auto-filled on file upload)")
+    image_url = models.TextField(blank=True, null=True, help_text="Section image URL")
     
     class Meta:
         db_table = 'news_sections'
         verbose_name = 'News Section'
         verbose_name_plural = 'News Sections'
         ordering = ['order']
-    
-    def save(self, *args, **kwargs):
-        # If file is uploaded, generate URL
-        if self.image_file:
-            self.image_url = self.image_file.url
-        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"Section {self.order} - {self.news.title}"
@@ -214,21 +159,13 @@ class TeamMember(TimestampMixin):
     """Team members model"""
     full_name = models.TextField(help_text="Team member full name")
     role = models.TextField(blank=True, null=True, help_text="Role/Position")
-    # Photo with file upload support
-    photo_file = models.ImageField(upload_to=upload_to_team_photos, blank=True, null=True, help_text="Upload member photo")
-    photo_url = models.TextField(blank=True, null=True, help_text="Photo URL (auto-filled on file upload)")
+    photo_url = models.TextField(blank=True, null=True, help_text="Photo URL")
     
     class Meta:
         db_table = 'team_members'
         verbose_name = 'Team Member'
         verbose_name_plural = 'Team Members'
         ordering = ['full_name']
-    
-    def save(self, *args, **kwargs):
-        # If file is uploaded, generate URL
-        if self.photo_file:
-            self.photo_url = self.photo_file.url
-        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.full_name
@@ -270,21 +207,13 @@ class Service(TimestampMixin):
     name = models.TextField(help_text="Service name")
     description = models.TextField(blank=True, null=True, help_text="Service description")
     order = models.IntegerField(default=0, help_text="Display order")
-    # Icon with file upload support
-    icon_file = models.ImageField(upload_to=upload_to_service_icons, blank=True, null=True, help_text="Upload service icon")
-    icon_url = models.TextField(blank=True, null=True, help_text="Icon URL (auto-filled on file upload)")
+    icon_url = models.TextField(blank=True, null=True, help_text="Icon URL")
     
     class Meta:
         db_table = 'services'
         verbose_name = 'Service'
         verbose_name_plural = 'Services'
         ordering = ['order']
-    
-    def save(self, *args, **kwargs):
-        # If file is uploaded, generate URL
-        if self.icon_file:
-            self.icon_url = self.icon_file.url
-        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.name
@@ -358,9 +287,7 @@ class Partner(TimestampMixin):
 class PartnerLogo(TimestampMixin):
     """Partner logos model"""
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE, related_name='logos')
-    # Logo with file upload support
-    image_file = models.ImageField(upload_to=upload_to_partner_logos, blank=True, null=True, help_text="Upload partner logo")
-    image_url = models.TextField(blank=True, help_text="Logo image URL (auto-filled on file upload)")
+    image_url = models.TextField(blank=True, help_text="Logo image URL")
     order = models.IntegerField(default=0, help_text="Display order")
     
     class Meta:
@@ -368,12 +295,6 @@ class PartnerLogo(TimestampMixin):
         verbose_name = 'Partner Logo'
         verbose_name_plural = 'Partner Logos'
         ordering = ['order']
-    
-    def save(self, *args, **kwargs):
-        # If file is uploaded, generate URL
-        if self.image_file:
-            self.image_url = self.image_file.url
-        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"Logo {self.order} for {self.partner.title}"
@@ -384,21 +305,13 @@ class WorkProcess(TimestampMixin):
     title = models.TextField(help_text="Work process title")
     description = models.TextField(blank=True, null=True, help_text="Process description")
     order = models.IntegerField(default=0, help_text="Display order")
-    # Image with file upload support
-    image_file = models.ImageField(upload_to=upload_to_work_process_images, blank=True, null=True, help_text="Upload process image")
-    image_url = models.TextField(blank=True, null=True, help_text="Process image URL (auto-filled on file upload)")
+    image_url = models.TextField(blank=True, null=True, help_text="Process image URL")
     
     class Meta:
         db_table = 'work_processes'
         verbose_name = 'Work Process'
         verbose_name_plural = 'Work Processes'
         ordering = ['order']
-    
-    def save(self, *args, **kwargs):
-        # If file is uploaded, generate URL
-        if self.image_file:
-            self.image_url = self.image_file.url
-        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.title
