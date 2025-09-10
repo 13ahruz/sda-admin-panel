@@ -143,6 +143,22 @@ class TeamSectionItemAdminForm(forms.ModelForm):
             self.fields['photo_upload'].help_text = f"Current photo: {self.instance.photo_url}"
 
 
+class ProjectPhotoAdminForm(forms.ModelForm):
+    image_upload = forms.ImageField(
+        required=False,
+        help_text="Upload image for project photo"
+    )
+    
+    class Meta:
+        model = ProjectPhoto
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.image_url:
+            self.fields['image_upload'].help_text = f"Current image: {self.instance.image_url}"
+
+
 # Inline admin classes
 class AboutLogoInline(admin.TabularInline):
     model = AboutLogo
@@ -158,8 +174,16 @@ class SectorInnInline(admin.TabularInline):
 
 class ProjectPhotoInline(admin.TabularInline):
     model = ProjectPhoto
+    form = ProjectPhotoAdminForm
     extra = 1
-    fields = ('image_url', 'order')
+    fields = ('image_upload', 'image_url', 'order')
+    
+    def save_model(self, request, obj, form, change):
+        if 'image_upload' in form.cleaned_data and form.cleaned_data['image_upload']:
+            uploaded_file = form.cleaned_data['image_upload']
+            file_url = upload_file_to_backend(uploaded_file, 'projects')
+            if file_url:
+                obj.image_url = file_url
 
 
 class NewsSectionInline(admin.TabularInline):
@@ -248,10 +272,32 @@ class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
 
 @admin.register(ProjectPhoto)
 class ProjectPhotoAdmin(BaseAdmin, ImagePreviewMixin):
+    form = ProjectPhotoAdminForm
     list_display = ('project', 'image_preview', 'order', 'created_at')
     list_filter = ('project', 'created_at')
     search_fields = ('project__title',)
-    fields = ('project', 'image_url', 'order', 'created_at', 'updated_at')
+    fieldsets = (
+        ('Content', {
+            'fields': ('project', 'order')
+        }),
+        ('Image', {
+            'fields': ('image_upload', 'image_url'),
+            'description': 'You can either upload a file or enter a URL directly.'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def save_model(self, request, obj, form, change):
+        if 'image_upload' in form.cleaned_data and form.cleaned_data['image_upload']:
+            uploaded_file = form.cleaned_data['image_upload']
+            file_url = upload_file_to_backend(uploaded_file, 'projects')
+            if file_url:
+                obj.image_url = file_url
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(News)
