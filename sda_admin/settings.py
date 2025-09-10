@@ -135,5 +135,5 @@ ADMIN_SITE_TITLE = "SDA Admin"
 ADMIN_INDEX_TITLE = "Welcome to SDA Administration"
 
 # Backend API integration
-BACKEND_UPLOAD_URL = config('BACKEND_UPLOAD_URL', default='http://web:8000/api/v1/upload')
-BACKEND_BASE_URL = config('BACKEND_BASE_URL', default='http://web:8000')
+BACKEND_UPLOAD_URL = config('BACKEND_UPLOAD_URL', default='http://127.0.0.1:8000/api/v1/upload')
+BACKEND_BASE_URL = config('BACKEND_BASE_URL', default='http://127.0.0.1:8000')

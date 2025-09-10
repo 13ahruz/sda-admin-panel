@@ -13,7 +13,7 @@ class FileUploadToBackendWidget(forms.ClearableFileInput):
     """
     
     def __init__(self, backend_url=None, *args, **kwargs):
-        self.backend_url = backend_url or getattr(settings, 'BACKEND_UPLOAD_URL', 'http://web:8000/api/v1/upload')
+        self.backend_url = backend_url or getattr(settings, 'BACKEND_UPLOAD_URL', 'http://127.0.0.1:8000/api/v1/upload')
         super().__init__(*args, **kwargs)
     
     def render(self, name, value, attrs=None, renderer=None):

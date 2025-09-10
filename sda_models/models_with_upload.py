@@ -116,7 +116,7 @@ class Project(TimestampMixin):
     def save(self, *args, **kwargs):
         # Generate URL from file if file exists
         if self.cover_photo:
-            # Use relative URL that matches backend structure
+            # Use relative URL that works with nginx proxy
             self.cover_photo_url = f"/uploads/{self.cover_photo.name}"
         super().save(*args, **kwargs)
 
