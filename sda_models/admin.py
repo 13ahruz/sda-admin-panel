@@ -214,8 +214,19 @@ class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
     
     def save_model(self, request, obj, form, change):
         if 'cover_photo_upload' in form.cleaned_data and form.cleaned_data['cover_photo_upload']:
+            import os
+            from django.core.files.storage import default_storage
             uploaded_file = form.cleaned_data['cover_photo_upload']
-            obj.cover_photo_url = f"/media/projects/{uploaded_file.name}"
+            
+            # Create the projects directory if it doesn't exist
+            projects_dir = 'projects'
+            if not os.path.exists(f'/app/media/{projects_dir}'):
+                os.makedirs(f'/app/media/{projects_dir}', exist_ok=True)
+            
+            # Save the file
+            file_path = f'{projects_dir}/{uploaded_file.name}'
+            saved_path = default_storage.save(file_path, uploaded_file)
+            obj.cover_photo_url = f"/media/{saved_path}"
         super().save_model(request, obj, form, change)
 
 
@@ -250,8 +261,19 @@ class NewsAdmin(BaseAdmin, ImagePreviewMixin):
     
     def save_model(self, request, obj, form, change):
         if 'photo_upload' in form.cleaned_data and form.cleaned_data['photo_upload']:
+            import os
+            from django.core.files.storage import default_storage
             uploaded_file = form.cleaned_data['photo_upload']
-            obj.photo_url = f"/media/news/{uploaded_file.name}"
+            
+            # Create the news directory if it doesn't exist
+            news_dir = 'news'
+            if not os.path.exists(f'/app/media/{news_dir}'):
+                os.makedirs(f'/app/media/{news_dir}', exist_ok=True)
+            
+            # Save the file
+            file_path = f'{news_dir}/{uploaded_file.name}'
+            saved_path = default_storage.save(file_path, uploaded_file)
+            obj.photo_url = f"/media/{saved_path}"
         super().save_model(request, obj, form, change)
 
 
@@ -285,8 +307,19 @@ class TeamMemberAdmin(BaseAdmin, ImagePreviewMixin):
     
     def save_model(self, request, obj, form, change):
         if 'photo_upload' in form.cleaned_data and form.cleaned_data['photo_upload']:
+            import os
+            from django.core.files.storage import default_storage
             uploaded_file = form.cleaned_data['photo_upload']
-            obj.photo_url = f"/media/team/{uploaded_file.name}"
+            
+            # Create the team directory if it doesn't exist
+            team_dir = 'team'
+            if not os.path.exists(f'/app/media/{team_dir}'):
+                os.makedirs(f'/app/media/{team_dir}', exist_ok=True)
+            
+            # Save the file
+            file_path = f'{team_dir}/{uploaded_file.name}'
+            saved_path = default_storage.save(file_path, uploaded_file)
+            obj.photo_url = f"/media/{saved_path}"
         super().save_model(request, obj, form, change)
 
 
@@ -322,7 +355,14 @@ class TeamSectionItemAdmin(BaseAdmin, ImagePreviewMixin):
     def save_model(self, request, obj, form, change):
         if 'photo_upload' in form.cleaned_data and form.cleaned_data['photo_upload']:
             uploaded_file = form.cleaned_data['photo_upload']
-            obj.photo_url = f"/media/team_items/{uploaded_file.name}"
+            # Create media directory if it doesn't exist
+            media_dir = '/app/media/team_items'
+            os.makedirs(media_dir, exist_ok=True)
+            
+            # Save the file
+            file_path = f'team_items/{uploaded_file.name}'
+            default_storage.save(file_path, uploaded_file)
+            obj.photo_url = f"/media/{file_path}"
         super().save_model(request, obj, form, change)
 
 
@@ -349,8 +389,19 @@ class ServiceAdmin(BaseAdmin, ImagePreviewMixin):
     
     def save_model(self, request, obj, form, change):
         if 'icon_upload' in form.cleaned_data and form.cleaned_data['icon_upload']:
+            import os
+            from django.core.files.storage import default_storage
             uploaded_file = form.cleaned_data['icon_upload']
-            obj.icon_url = f"/media/services/{uploaded_file.name}"
+            
+            # Create the services directory if it doesn't exist
+            services_dir = 'services'
+            if not os.path.exists(f'/app/media/{services_dir}'):
+                os.makedirs(f'/app/media/{services_dir}', exist_ok=True)
+            
+            # Save the file
+            file_path = f'{services_dir}/{uploaded_file.name}'
+            saved_path = default_storage.save(file_path, uploaded_file)
+            obj.icon_url = f"/media/{saved_path}"
         super().save_model(request, obj, form, change)
 
 
@@ -389,7 +440,14 @@ class ContactMessageAdmin(BaseAdmin):
     def save_model(self, request, obj, form, change):
         if form.cleaned_data.get('cv_upload'):
             uploaded_file = form.cleaned_data['cv_upload']
-            obj.cv_url = f"/media/contact/{uploaded_file.name}"
+            # Create media directory if it doesn't exist
+            media_dir = '/app/media/contact'
+            os.makedirs(media_dir, exist_ok=True)
+            
+            # Save the file
+            file_path = f'contact/{uploaded_file.name}'
+            default_storage.save(file_path, uploaded_file)
+            obj.cv_url = f"/media/{file_path}"
         super().save_model(request, obj, form, change)
 
 
