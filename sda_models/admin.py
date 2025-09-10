@@ -428,16 +428,4 @@ class PartnerLogoAdmin(BaseAdmin, ImagePreviewMixin):
     fields = ('partner', 'logo_url', 'order', 'created_at', 'updated_at')
 
 
-@admin.register(Contact)
-class ContactAdmin(BaseAdmin):
-    list_display = ('email', 'phone', 'created_at')
-    search_fields = ('email', 'phone', 'address')
-    fields = (
-        'address', 'phone', 'email',
-        'linkedin', 'instagram', 'youtube',
-        'created_at', 'updated_at'
-    )
 
-    def has_add_permission(self, request):
-        # Only allow one contact record
-        return not Contact.objects.exists()
