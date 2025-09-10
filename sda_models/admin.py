@@ -1,6 +1,82 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django import forms
 from .models import *
+
+
+# Custom for@admin.register(Project)
+class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
+    form = ProjectAdminForm
+    list_display = ('title', 'client', 'year', 'image_preview', 'created_at')
+    list_filter = ('year', 'property_sector', 'created_at')
+    search_fields = ('title', 'client', 'tag')
+    fieldsets = (
+        ('Basic Info', {
+            'fields': ('title', 'tag', 'client', 'year', 'property_sector')
+        }),
+        ('Cover Photo', {
+            'fields': ('cover_photo_upload', 'cover_photo_url'),
+            'description': 'You can either upload a file or enter a URL directly.'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    inlines = [ProjectPhotoInline]
+    
+    def save_model(self, request, obj, form, change):
+        if 'cover_photo_upload' in form.cleaned_data and form.cleaned_data['cover_photo_upload']:
+            uploaded_file = form.cleaned_data['cover_photo_upload']
+            obj.cover_photo_url = f"/media/projects/{uploaded_file.name}"
+        super().save_model(request, obj, form, change)es for file upload functionality
+class NewsAdminForm(forms.ModelForm):
+    photo_upload = forms.ImageField(required=False, help_text="Upload a photo (optional)")
+    
+    class Meta:
+        model = News
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.photo_url:
+            self.fields['photo_upload'].help_text = f"Current: {self.instance.photo_url}"
+
+class TeamMemberAdminForm(forms.ModelForm):
+    photo_upload = forms.ImageField(required=False, help_text="Upload a photo (optional)")
+    
+    class Meta:
+        model = TeamMember
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.photo_url:
+            self.fields['photo_upload'].help_text = f"Current: {self.instance.photo_url}"
+
+class ProjectAdminForm(forms.ModelForm):
+    cover_photo_upload = forms.ImageField(required=False, help_text="Upload a cover photo (optional)")
+    
+    class Meta:
+        model = Project
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.cover_photo_url:
+            self.fields['cover_photo_upload'].help_text = f"Current: {self.instance.cover_photo_url}"
+
+class ServiceAdminForm(forms.ModelForm):
+    icon_upload = forms.ImageField(required=False, help_text="Upload an icon (optional)")
+    
+    class Meta:
+        model = Service
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.icon_url:
+            self.fields['icon_upload'].help_text = f"Current: {self.instance.icon_url}"
 
 
 class BaseAdmin(admin.ModelAdmin):
@@ -108,11 +184,32 @@ class ProjectPhotoAdmin(BaseAdmin, ImagePreviewMixin):
 
 @admin.register(News)
 class NewsAdmin(BaseAdmin, ImagePreviewMixin):
+    form = NewsAdminForm
     list_display = ('title', 'image_preview', 'created_at')
     list_filter = ('created_at', 'tags')
     search_fields = ('title', 'summary', 'tags')
-    fields = ('title', 'summary', 'photo_url', 'tags', 'created_at', 'updated_at')
+    fieldsets = (
+        ('Content', {
+            'fields': ('title', 'summary', 'tags')
+        }),
+        ('Photo', {
+            'fields': ('photo_upload', 'photo_url'),
+            'description': 'You can either upload a file or enter a URL directly.'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
     inlines = [NewsSectionInline]
+    
+    def save_model(self, request, obj, form, change):
+        # Handle file upload and convert to URL
+        if 'photo_upload' in form.cleaned_data and form.cleaned_data['photo_upload']:
+            uploaded_file = form.cleaned_data['photo_upload']
+            # Save file and set URL (you can customize the path as needed)
+            obj.photo_url = f"/media/news/{uploaded_file.name}"
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(NewsSection)
@@ -125,10 +222,29 @@ class NewsSectionAdmin(BaseAdmin, ImagePreviewMixin):
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(BaseAdmin, ImagePreviewMixin):
+    form = TeamMemberAdminForm
     list_display = ('full_name', 'role', 'image_preview', 'created_at')
     list_filter = ('role', 'created_at')
     search_fields = ('full_name', 'role')
-    fields = ('full_name', 'role', 'photo_url', 'created_at', 'updated_at')
+    fieldsets = (
+        ('Basic Info', {
+            'fields': ('full_name', 'role')
+        }),
+        ('Photo', {
+            'fields': ('photo_upload', 'photo_url'),
+            'description': 'You can either upload a file or enter a URL directly.'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        if 'photo_upload' in form.cleaned_data and form.cleaned_data['photo_upload']:
+            uploaded_file = form.cleaned_data['photo_upload']
+            obj.photo_url = f"/media/team/{uploaded_file.name}"
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(TeamSection)
@@ -150,11 +266,30 @@ class TeamSectionItemAdmin(BaseAdmin):
 
 @admin.register(Service)
 class ServiceAdmin(BaseAdmin, ImagePreviewMixin):
-    list_display = ('name', 'description', 'order', 'created_at')
+    form = ServiceAdminForm
+    list_display = ('name', 'description', 'order', 'image_preview', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('name', 'description')
-    fields = ('name', 'description', 'order', 'icon_url', 'created_at', 'updated_at')
+    fieldsets = (
+        ('Basic Info', {
+            'fields': ('name', 'description', 'order')
+        }),
+        ('Icon', {
+            'fields': ('icon_upload', 'icon_url'),
+            'description': 'You can either upload a file or enter a URL directly.'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
     ordering = ['order']
+    
+    def save_model(self, request, obj, form, change):
+        if 'icon_upload' in form.cleaned_data and form.cleaned_data['icon_upload']:
+            uploaded_file = form.cleaned_data['icon_upload']
+            obj.icon_url = f"/media/services/{uploaded_file.name}"
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(ServiceBenefit)
