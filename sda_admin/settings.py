@@ -66,6 +66,9 @@ DATABASES = {
     }
 }
 
+# Backend API configuration for file uploads
+BACKEND_UPLOAD_URL = config('BACKEND_UPLOAD_URL', default='http://localhost:8000/api/v1/upload')
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -98,6 +101,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Backend upload URL - Updated to use the correct domain
-BACKEND_UPLOAD_URL = config('BACKEND_UPLOAD_URL', default='https://sdaconsulting.az/api/v1/upload')

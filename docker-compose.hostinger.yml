@@ -1,0 +1,57 @@
+version: '3.8'
+
+# Docker Compose for Hostinger VPS Deployment - Admin Panel
+# This connects to the backend's Hostinger database
+
+services:
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sda_admin_hostinger
+    command: bash -c "python manage.py collectstatic --noinput && python manage.py migrate --noinput && gunicorn sda_admin.wsgi:application --bind 0.0.0.0:8001 --workers 3"
+    ports:
+      - "8001:8001"
+    environment:
+      # Database Configuration (connect to backend's database)
+      - DB_NAME=${DB_NAME:-sda_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=5432
+      
+      # Django Settings
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_HOSTS=sdaconsulting.az,www.sdaconsulting.az,153.92.223.91,localhost
+      
+      # Backend API URL for file uploads
+      - BACKEND_UPLOAD_URL=https://sdaconsulting.az/api/v1/upload
+      
+      # Static and Media settings
+      - STATIC_URL=/static/
+      - STATIC_ROOT=/app/staticfiles
+      - MEDIA_URL=/media/
+      - MEDIA_ROOT=/app/media
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - ./uploads:/app/uploads  # Shared uploads with backend
+    networks:
+      - sda_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/admin/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  static_volume:
+    driver: local
+  media_volume:
+    driver: local
+
+networks:
+  sda_network:
+    external: true  # Use the existing backend network from docker-compose.hostinger.yml

@@ -201,17 +201,49 @@ class TeamSectionItemInline(admin.TabularInline):
 class PartnerLogoInline(admin.TabularInline):
     model = PartnerLogo
     extra = 1
-    fields = ('logo_url', 'order')
+    fields = ('image_url', 'order')
 
 
 # Main admin classes
 @admin.register(About)
 class AboutAdmin(BaseAdmin):
-    list_display = ('experience', 'project_count', 'members', 'created_at')
-    search_fields = ('experience', 'project_count', 'members')
+    list_display = ('get_experience', 'get_project_count', 'get_members', 'created_at')
+    search_fields = ('experience_en', 'experience_az', 'experience_ru', 'experience')
     list_filter = ('created_at',)
-    fields = ('experience', 'project_count', 'members', 'created_at', 'updated_at')
+    fieldsets = (
+        ('English Fields', {
+            'fields': ('experience_en', 'project_count_en', 'members_en')
+        }),
+        ('Azerbaijani Fields', {
+            'fields': ('experience_az', 'project_count_az', 'members_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('experience_ru', 'project_count_ru', 'members_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Legacy Fields', {
+            'fields': ('experience', 'project_count', 'members'),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
     inlines = [AboutLogoInline]
+    
+    def get_experience(self, obj):
+        return obj.experience_en or obj.experience or 'N/A'
+    get_experience.short_description = 'Experience'
+    
+    def get_project_count(self, obj):
+        return obj.project_count_en or obj.project_count or 'N/A'
+    get_project_count.short_description = 'Projects'
+    
+    def get_members(self, obj):
+        return obj.members_en or obj.members or 'N/A'
+    get_members.short_description = 'Members'
 
 
 @admin.register(AboutLogo)
@@ -224,12 +256,39 @@ class AboutLogoAdmin(BaseAdmin, ImagePreviewMixin):
 
 @admin.register(PropertySector)
 class PropertySectorAdmin(BaseAdmin):
-    list_display = ('title', 'description', 'order', 'created_at')
-    search_fields = ('title', 'description')
+    list_display = ('get_title', 'order', 'created_at')
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title', 'description_en', 'description_az', 'description_ru')
     list_filter = ('created_at',)
-    fields = ('title', 'description', 'order', 'created_at', 'updated_at')
+    fieldsets = (
+        ('English Fields', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azerbaijani Fields', {
+            'fields': ('title_az', 'description_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('title_ru', 'description_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Legacy Fields', {
+            'fields': ('title', 'description'),
+            'classes': ('collapse',)
+        }),
+        ('Display', {
+            'fields': ('order',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
     ordering = ['order']
     inlines = [SectorInnInline]
+    
+    def get_title(self, obj):
+        return obj.title_en or obj.title or f"Sector {obj.id}"
+    get_title.short_description = 'Title'
 
 
 @admin.register(SectorInn)
@@ -243,12 +302,27 @@ class SectorInnAdmin(BaseAdmin):
 @admin.register(Project)
 class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
     form = ProjectAdminForm
-    list_display = ('title', 'client', 'year', 'property_sector', 'image_preview', 'created_at')
+    list_display = ('get_title', 'client', 'year', 'property_sector', 'image_preview', 'created_at')
     list_filter = ('year', 'property_sector', 'created_at')
-    search_fields = ('title', 'client', 'tag')
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title', 'client', 'tag')
     fieldsets = (
+        ('English Fields', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azerbaijani Fields', {
+            'fields': ('title_az', 'description_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('title_ru', 'description_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Legacy Fields', {
+            'fields': ('title',),
+            'classes': ('collapse',)
+        }),
         ('Basic Info', {
-            'fields': ('title', 'tag', 'client', 'year', 'property_sector')
+            'fields': ('slug', 'tag', 'client', 'year', 'property_sector')
         }),
         ('Cover Photo', {
             'fields': ('cover_photo_upload', 'cover_photo_url'),
@@ -260,6 +334,10 @@ class ProjectAdmin(BaseAdmin, ImagePreviewMixin):
         }),
     )
     inlines = [ProjectPhotoInline]
+    
+    def get_title(self, obj):
+        return obj.title_en or obj.title or f"Project {obj.id}"
+    get_title.short_description = 'Title'
     
     def save_model(self, request, obj, form, change):
         if 'cover_photo_upload' in form.cleaned_data and form.cleaned_data['cover_photo_upload']:
@@ -303,11 +381,22 @@ class ProjectPhotoAdmin(BaseAdmin, ImagePreviewMixin):
 @admin.register(News)
 class NewsAdmin(BaseAdmin, ImagePreviewMixin):
     form = NewsAdminForm
-    list_display = ('title', 'image_preview', 'created_at')
+    list_display = ('get_title', 'image_preview', 'created_at')
     list_filter = ('created_at', 'tags')
-    search_fields = ('title', 'summary', 'tags')
+    search_fields = ('title', 'title_en', 'title_az', 'title_ru', 'summary', 'summary_en', 'summary_az', 'summary_ru', 'tags')
     fieldsets = (
-        ('Content', {
+        ('English Fields', {
+            'fields': ('title_en', 'summary_en')
+        }),
+        ('Azerbaijani Fields', {
+            'fields': ('title_az', 'summary_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('title_ru', 'summary_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Default Fields', {
             'fields': ('title', 'summary', 'tags')
         }),
         ('Photo', {
@@ -321,6 +410,10 @@ class NewsAdmin(BaseAdmin, ImagePreviewMixin):
     )
     inlines = [NewsSectionInline]
     
+    def get_title(self, obj):
+        return obj.title_en or obj.title
+    get_title.short_description = 'Title'
+    
     def save_model(self, request, obj, form, change):
         if 'photo_upload' in form.cleaned_data and form.cleaned_data['photo_upload']:
             uploaded_file = form.cleaned_data['photo_upload']
@@ -332,21 +425,62 @@ class NewsAdmin(BaseAdmin, ImagePreviewMixin):
 
 @admin.register(NewsSection)
 class NewsSectionAdmin(BaseAdmin, ImagePreviewMixin):
-    list_display = ('news', 'heading', 'order', 'image_preview', 'created_at')
+    list_display = ('news', 'get_heading', 'order', 'image_preview', 'created_at')
     list_filter = ('news', 'created_at')
-    search_fields = ('heading', 'content', 'news__title')
-    fields = ('news', 'heading', 'content', 'image_url', 'order', 'created_at', 'updated_at')
+    search_fields = ('heading', 'heading_en', 'heading_az', 'heading_ru', 'content', 'content_en', 'content_az', 'content_ru', 'news__title')
+    fieldsets = (
+        ('English Fields', {
+            'fields': ('heading_en', 'content_en')
+        }),
+        ('Azerbaijani Fields', {
+            'fields': ('heading_az', 'content_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('heading_ru', 'content_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Default Fields', {
+            'fields': ('news', 'heading', 'content', 'order')
+        }),
+        ('Image', {
+            'fields': ('image_url',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def get_heading(self, obj):
+        return obj.heading_en or obj.heading or 'No heading'
+    get_heading.short_description = 'Heading'
 
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(BaseAdmin, ImagePreviewMixin):
     form = TeamMemberAdminForm
-    list_display = ('full_name', 'role', 'image_preview', 'created_at')
-    list_filter = ('role', 'created_at')
-    search_fields = ('full_name', 'role')
+    list_display = ('get_full_name', 'get_role', 'image_preview', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('full_name', 'full_name_en', 'full_name_az', 'full_name_ru', 'role', 'role_en', 'role_az', 'role_ru')
     fieldsets = (
-        ('Basic Info', {
-            'fields': ('full_name', 'role')
+        ('English Fields', {
+            'fields': ('full_name_en', 'role_en', 'bio_en')
+        }),
+        ('Azerbaijani Fields', {
+            'fields': ('full_name_az', 'role_az', 'bio_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('full_name_ru', 'role_ru', 'bio_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Legacy Fields', {
+            'fields': ('full_name', 'role', 'bio'),
+            'classes': ('collapse',)
+        }),
+        ('Social & Photo', {
+            'fields': ('linkedin_url',)
         }),
         ('Photo', {
             'fields': ('photo_upload', 'photo_url'),
@@ -357,6 +491,14 @@ class TeamMemberAdmin(BaseAdmin, ImagePreviewMixin):
             'classes': ('collapse',)
         }),
     )
+    
+    def get_full_name(self, obj):
+        return obj.full_name_en or obj.full_name or f"Team Member {obj.id}"
+    get_full_name.short_description = 'Full Name'
+    
+    def get_role(self, obj):
+        return obj.role_en or obj.role or 'N/A'
+    get_role.short_description = 'Role'
     
     def save_model(self, request, obj, form, change):
         if 'photo_upload' in form.cleaned_data and form.cleaned_data['photo_upload']:
@@ -408,15 +550,30 @@ class TeamSectionItemAdmin(BaseAdmin, ImagePreviewMixin):
 @admin.register(Service)
 class ServiceAdmin(BaseAdmin, ImagePreviewMixin):
     form = ServiceAdminForm
-    list_display = ('name', 'description', 'order', 'image_preview', 'created_at')
+    list_display = ('get_name', 'order', 'image_preview', 'created_at')
     list_filter = ('created_at',)
-    search_fields = ('name', 'description')
+    search_fields = ('name', 'name_en', 'name_az', 'name_ru', 'description', 'description_en', 'description_az', 'description_ru')
     fieldsets = (
-        ('Basic Info', {
-            'fields': ('name', 'description', 'order')
+        ('English Fields', {
+            'fields': ('name_en', 'description_en', 'hero_text_en', 'meta_title_en', 'meta_description_en')
         }),
-        ('Icon', {
-            'fields': ('icon_upload', 'icon_url'),
+        ('Azerbaijani Fields', {
+            'fields': ('name_az', 'description_az', 'hero_text_az', 'meta_title_az', 'meta_description_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('name_ru', 'description_ru', 'hero_text_ru', 'meta_title_ru', 'meta_description_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Legacy Fields', {
+            'fields': ('name', 'description', 'hero_text', 'meta_title', 'meta_description'),
+            'classes': ('collapse',)
+        }),
+        ('Basic Info', {
+            'fields': ('slug', 'order')
+        }),
+        ('Images', {
+            'fields': ('icon_upload', 'icon_url', 'image_url'),
             'description': 'You can either upload a file or enter a URL directly.'
         }),
         ('Timestamps', {
@@ -425,6 +582,10 @@ class ServiceAdmin(BaseAdmin, ImagePreviewMixin):
         }),
     )
     ordering = ['order']
+    
+    def get_name(self, obj):
+        return obj.name_en or obj.name or f"Service {obj.id}"
+    get_name.short_description = 'Name'
     
     def save_model(self, request, obj, form, change):
         if 'icon_upload' in form.cleaned_data and form.cleaned_data['icon_upload']:
@@ -478,29 +639,111 @@ class ContactMessageAdmin(BaseAdmin):
 
 @admin.register(Approach)
 class ApproachAdmin(BaseAdmin):
-    list_display = ('title', 'description', 'order', 'created_at')
-    search_fields = ('title', 'description')
+    list_display = ('get_title', 'order', 'created_at')
+    search_fields = ('title', 'title_en', 'title_az', 'title_ru', 'description', 'description_en', 'description_az', 'description_ru')
     list_filter = ('created_at',)
-    fields = ('title', 'description', 'order', 'created_at', 'updated_at')
+    fieldsets = (
+        ('English Fields', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azerbaijani Fields', {
+            'fields': ('title_az', 'description_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('title_ru', 'description_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Legacy Fields', {
+            'fields': ('title', 'description'),
+            'classes': ('collapse',)
+        }),
+        ('Display', {
+            'fields': ('order',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
     ordering = ['order']
+    
+    def get_title(self, obj):
+        return obj.title_en or obj.title or f"Approach {obj.id}"
+    get_title.short_description = 'Title'
 
 
 @admin.register(WorkProcess)
 class WorkProcessAdmin(BaseAdmin):
-    list_display = ('title', 'description', 'order', 'created_at')
-    search_fields = ('title', 'description')
+    list_display = ('get_title', 'order', 'created_at')
+    search_fields = ('title', 'title_en', 'title_az', 'title_ru', 'description', 'description_en', 'description_az', 'description_ru')
     list_filter = ('created_at',)
-    fields = ('title', 'description', 'order', 'image_url', 'created_at', 'updated_at')
+    fieldsets = (
+        ('English Fields', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azerbaijani Fields', {
+            'fields': ('title_az', 'description_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('title_ru', 'description_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Legacy Fields', {
+            'fields': ('title', 'description'),
+            'classes': ('collapse',)
+        }),
+        ('Display', {
+            'fields': ('order', 'image_url')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
     ordering = ['order']
+    
+    def get_title(self, obj):
+        return obj.title_en or obj.title or f"Work Process {obj.id}"
+    get_title.short_description = 'Title'
 
 
 @admin.register(Partner)
 class PartnerAdmin(BaseAdmin):
-    list_display = ('title', 'button_text', 'created_at')
-    search_fields = ('title', 'button_text')
+    list_display = ('get_title', 'get_button_text', 'created_at')
+    search_fields = ('title', 'title_en', 'title_az', 'title_ru', 'button_text', 'button_text_en', 'button_text_az', 'button_text_ru')
     list_filter = ('created_at',)
-    fields = ('title', 'button_text', 'created_at', 'updated_at')
+    fieldsets = (
+        ('English Fields', {
+            'fields': ('title_en', 'button_text_en')
+        }),
+        ('Azerbaijani Fields', {
+            'fields': ('title_az', 'button_text_az'),
+            'classes': ('collapse',)
+        }),
+        ('Russian Fields', {
+            'fields': ('title_ru', 'button_text_ru'),
+            'classes': ('collapse',)
+        }),
+        ('Legacy Fields', {
+            'fields': ('title', 'button_text'),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
     inlines = [PartnerLogoInline]
+    
+    def get_title(self, obj):
+        return obj.title_en or obj.title or f"Partner {obj.id}"
+    get_title.short_description = 'Title'
+    
+    def get_button_text(self, obj):
+        return obj.button_text_en or obj.button_text or 'N/A'
+    get_button_text.short_description = 'Button Text'
 
 
 @admin.register(PartnerLogo)

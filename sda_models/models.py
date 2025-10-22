@@ -14,9 +14,25 @@ class TimestampMixin(models.Model):
 # About models - exact match to FastAPI backend
 class About(TimestampMixin):
     """About section model - matches backend About model"""
-    experience = models.TextField()
-    project_count = models.TextField()
-    members = models.TextField()
+    # Multilingual experience fields
+    experience_en = models.TextField(blank=True, null=True)
+    experience_az = models.TextField(blank=True, null=True)
+    experience_ru = models.TextField(blank=True, null=True)
+    
+    # Multilingual project count fields
+    project_count_en = models.TextField(blank=True, null=True)
+    project_count_az = models.TextField(blank=True, null=True)
+    project_count_ru = models.TextField(blank=True, null=True)
+    
+    # Multilingual members fields
+    members_en = models.TextField(blank=True, null=True)
+    members_az = models.TextField(blank=True, null=True)
+    members_ru = models.TextField(blank=True, null=True)
+    
+    # Legacy fields
+    experience = models.TextField(blank=True, null=True)
+    project_count = models.TextField(blank=True, null=True)
+    members = models.TextField(blank=True, null=True)
     
     class Meta:
         db_table = 'about'
@@ -24,7 +40,7 @@ class About(TimestampMixin):
         verbose_name_plural = 'About'
     
     def __str__(self):
-        return f"About - Experience: {self.experience[:50]}"
+        return f"About - Experience: {self.experience_en or self.experience or 'N/A'}"
 
 
 class AboutLogo(TimestampMixin):
@@ -48,8 +64,20 @@ class AboutLogo(TimestampMixin):
 
 class PropertySector(TimestampMixin):
     """Property sectors model"""
-    title = models.TextField(unique=True, help_text="Sector title")
-    description = models.TextField(blank=True, null=True, help_text="Sector description")
+    # Multilingual title fields
+    title_en = models.TextField(blank=True, null=True, help_text="Sector title (English)")
+    title_az = models.TextField(blank=True, null=True, help_text="Sector title (Azerbaijani)")
+    title_ru = models.TextField(blank=True, null=True, help_text="Sector title (Russian)")
+    
+    # Multilingual description fields
+    description_en = models.TextField(blank=True, null=True, help_text="Sector description (English)")
+    description_az = models.TextField(blank=True, null=True, help_text="Sector description (Azerbaijani)")
+    description_ru = models.TextField(blank=True, null=True, help_text="Sector description (Russian)")
+    
+    # Legacy fields
+    title = models.TextField(blank=True, null=True, help_text="Legacy title")
+    description = models.TextField(blank=True, null=True, help_text="Legacy description")
+    
     order = models.IntegerField(default=0, help_text="Display order")
     
     class Meta:
@@ -59,7 +87,7 @@ class PropertySector(TimestampMixin):
         ordering = ['order']
     
     def __str__(self):
-        return self.title
+        return self.title_en or self.title or f"Sector {self.id}"
 
 
 class SectorInn(TimestampMixin):
@@ -81,7 +109,22 @@ class SectorInn(TimestampMixin):
 
 class Project(TimestampMixin):
     """Projects model"""
-    title = models.TextField(help_text="Project title")
+    # Multilingual title fields
+    title_en = models.TextField(blank=True, null=True, help_text="Project title (English)")
+    title_az = models.TextField(blank=True, null=True, help_text="Project title (Azerbaijani)")
+    title_ru = models.TextField(blank=True, null=True, help_text="Project title (Russian)")
+    
+    # Multilingual description fields
+    description_en = models.TextField(blank=True, null=True, help_text="Project description (English)")
+    description_az = models.TextField(blank=True, null=True, help_text="Project description (Azerbaijani)")
+    description_ru = models.TextField(blank=True, null=True, help_text="Project description (Russian)")
+    
+    # Legacy title field
+    title = models.TextField(blank=True, null=True, help_text="Legacy title")
+    
+    # Slug for URL-friendly identification
+    slug = models.TextField(blank=True, null=True, unique=True, help_text="URL slug")
+    
     tag = models.TextField(blank=True, null=True, help_text="Project tag")
     client = models.TextField(blank=True, null=True, help_text="Client name")
     year = models.IntegerField(blank=True, null=True, help_text="Project year")
@@ -101,7 +144,7 @@ class Project(TimestampMixin):
         ordering = ['-year', 'title']
     
     def __str__(self):
-        return self.title
+        return self.title_en or self.title or f"Project {self.id}"
 
 
 class ProjectPhoto(TimestampMixin):
@@ -122,8 +165,18 @@ class ProjectPhoto(TimestampMixin):
 
 class News(TimestampMixin):
     """News articles model"""
-    title = models.TextField(help_text="News title")
-    summary = models.TextField(blank=True, null=True, help_text="News summary")
+    # Multilingual title fields
+    title = models.TextField(help_text="Default News title")
+    title_en = models.TextField(blank=True, null=True, help_text="News title (English)")
+    title_az = models.TextField(blank=True, null=True, help_text="News title (Azerbaijani)")
+    title_ru = models.TextField(blank=True, null=True, help_text="News title (Russian)")
+    
+    # Multilingual summary fields
+    summary = models.TextField(blank=True, null=True, help_text="Default summary")
+    summary_en = models.TextField(blank=True, null=True, help_text="News summary (English)")
+    summary_az = models.TextField(blank=True, null=True, help_text="News summary (Azerbaijani)")
+    summary_ru = models.TextField(blank=True, null=True, help_text="News summary (Russian)")
+    
     photo_url = models.TextField(blank=True, null=True, help_text="News photo URL")
     tags = ArrayField(models.TextField(), blank=True, default=list, help_text="News tags")
     
@@ -134,15 +187,26 @@ class News(TimestampMixin):
         ordering = ['-created_at']
     
     def __str__(self):
-        return self.title
+        return self.title_en or self.title
 
 
 class NewsSection(TimestampMixin):
     """News sections model"""
     news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='sections')
     order = models.IntegerField(default=0, help_text="Section order")
-    heading = models.TextField(blank=True, null=True, help_text="Section heading")
-    content = models.TextField(blank=True, null=True, help_text="Section content")
+    
+    # Multilingual heading fields
+    heading = models.TextField(blank=True, null=True, help_text="Default heading")
+    heading_en = models.TextField(blank=True, null=True, help_text="Section heading (English)")
+    heading_az = models.TextField(blank=True, null=True, help_text="Section heading (Azerbaijani)")
+    heading_ru = models.TextField(blank=True, null=True, help_text="Section heading (Russian)")
+    
+    # Multilingual content fields
+    content = models.TextField(blank=True, null=True, help_text="Default content")
+    content_en = models.TextField(blank=True, null=True, help_text="Section content (English)")
+    content_az = models.TextField(blank=True, null=True, help_text="Section content (Azerbaijani)")
+    content_ru = models.TextField(blank=True, null=True, help_text="Section content (Russian)")
+    
     image_url = models.TextField(blank=True, null=True, help_text="Section image URL")
     
     class Meta:
@@ -152,14 +216,34 @@ class NewsSection(TimestampMixin):
         ordering = ['order']
     
     def __str__(self):
-        return f"Section {self.order} - {self.news.title}"
+        heading_text = self.heading_en or self.heading or "No heading"
+        return f"Section {self.order} - {self.news.title} - {heading_text}"
 
 
 class TeamMember(TimestampMixin):
     """Team members model"""
-    full_name = models.TextField(help_text="Team member full name")
-    role = models.TextField(blank=True, null=True, help_text="Role/Position")
+    # Multilingual full name fields
+    full_name_en = models.TextField(blank=True, null=True, help_text="Full name (English)")
+    full_name_az = models.TextField(blank=True, null=True, help_text="Full name (Azerbaijani)")
+    full_name_ru = models.TextField(blank=True, null=True, help_text="Full name (Russian)")
+    
+    # Multilingual role fields
+    role_en = models.TextField(blank=True, null=True, help_text="Role/Position (English)")
+    role_az = models.TextField(blank=True, null=True, help_text="Role/Position (Azerbaijani)")
+    role_ru = models.TextField(blank=True, null=True, help_text="Role/Position (Russian)")
+    
+    # Multilingual bio fields
+    bio_en = models.TextField(blank=True, null=True, help_text="Bio (English)")
+    bio_az = models.TextField(blank=True, null=True, help_text="Bio (Azerbaijani)")
+    bio_ru = models.TextField(blank=True, null=True, help_text="Bio (Russian)")
+    
     photo_url = models.TextField(blank=True, null=True, help_text="Photo URL")
+    linkedin_url = models.TextField(blank=True, null=True, help_text="LinkedIn profile URL")
+    
+    # Legacy fields
+    full_name = models.TextField(blank=True, null=True, help_text="Legacy full name")
+    role = models.TextField(blank=True, null=True, help_text="Legacy role")
+    bio = models.TextField(blank=True, null=True, help_text="Legacy bio")
     
     class Meta:
         db_table = 'team_members'
@@ -168,7 +252,7 @@ class TeamMember(TimestampMixin):
         ordering = ['full_name']
     
     def __str__(self):
-        return self.full_name
+        return self.full_name_en or self.full_name or f"Team Member {self.id}"
 
 
 class TeamSection(TimestampMixin):
@@ -206,8 +290,39 @@ class TeamSectionItem(TimestampMixin):
 
 class Service(TimestampMixin):
     """Services model"""
-    name = models.TextField(help_text="Service name")
-    description = models.TextField(blank=True, null=True, help_text="Service description")
+    # Multilingual name/title fields
+    name_en = models.TextField(blank=True, null=True, help_text="Service name (English)")
+    name_az = models.TextField(blank=True, null=True, help_text="Service name (Azerbaijani)")
+    name_ru = models.TextField(blank=True, null=True, help_text="Service name (Russian)")
+    
+    # Multilingual description fields
+    description_en = models.TextField(blank=True, null=True, help_text="Service description (English)")
+    description_az = models.TextField(blank=True, null=True, help_text="Service description (Azerbaijani)")
+    description_ru = models.TextField(blank=True, null=True, help_text="Service description (Russian)")
+    
+    # Multilingual hero text fields
+    hero_text_en = models.TextField(blank=True, null=True, help_text="Hero text (English)")
+    hero_text_az = models.TextField(blank=True, null=True, help_text="Hero text (Azerbaijani)")
+    hero_text_ru = models.TextField(blank=True, null=True, help_text="Hero text (Russian)")
+    
+    # Multilingual meta fields
+    meta_title_en = models.TextField(blank=True, null=True, help_text="Meta title (English)")
+    meta_title_az = models.TextField(blank=True, null=True, help_text="Meta title (Azerbaijani)")
+    meta_title_ru = models.TextField(blank=True, null=True, help_text="Meta title (Russian)")
+    
+    meta_description_en = models.TextField(blank=True, null=True, help_text="Meta description (English)")
+    meta_description_az = models.TextField(blank=True, null=True, help_text="Meta description (Azerbaijani)")
+    meta_description_ru = models.TextField(blank=True, null=True, help_text="Meta description (Russian)")
+    
+    # Legacy fields
+    name = models.TextField(blank=True, null=True, help_text="Legacy name")
+    description = models.TextField(blank=True, null=True, help_text="Legacy description")
+    hero_text = models.TextField(blank=True, null=True, help_text="Legacy hero text")
+    meta_title = models.TextField(blank=True, null=True, help_text="Legacy meta title")
+    meta_description = models.TextField(blank=True, null=True, help_text="Legacy meta description")
+    
+    slug = models.CharField(max_length=255, unique=True, help_text="URL slug")
+    image_url = models.TextField(blank=True, null=True, help_text="Service image URL")
     order = models.IntegerField(default=0, help_text="Display order")
     icon_url = models.TextField(blank=True, null=True, help_text="Icon URL")
     
@@ -218,7 +333,7 @@ class Service(TimestampMixin):
         ordering = ['order']
     
     def __str__(self):
-        return self.name
+        return self.name_en or self.name or f"Service {self.id}"
 
 
 class ServiceBenefit(TimestampMixin):
@@ -258,8 +373,20 @@ class ContactMessage(TimestampMixin):
 
 class Approach(TimestampMixin):
     """Approaches model"""
-    title = models.TextField(help_text="Approach title")
-    description = models.TextField(blank=True, null=True, help_text="Approach description")
+    # Multilingual title fields
+    title_en = models.TextField(blank=True, null=True, help_text="Approach title (English)")
+    title_az = models.TextField(blank=True, null=True, help_text="Approach title (Azerbaijani)")
+    title_ru = models.TextField(blank=True, null=True, help_text="Approach title (Russian)")
+    
+    # Multilingual description fields
+    description_en = models.TextField(blank=True, null=True, help_text="Approach description (English)")
+    description_az = models.TextField(blank=True, null=True, help_text="Approach description (Azerbaijani)")
+    description_ru = models.TextField(blank=True, null=True, help_text="Approach description (Russian)")
+    
+    # Legacy fields
+    title = models.TextField(blank=True, null=True, help_text="Legacy title")
+    description = models.TextField(blank=True, null=True, help_text="Legacy description")
+    
     order = models.IntegerField(default=0, help_text="Display order")
     
     class Meta:
@@ -269,13 +396,24 @@ class Approach(TimestampMixin):
         ordering = ['order']
     
     def __str__(self):
-        return self.title
+        return self.title_en or self.title or f"Approach {self.id}"
 
 
 class Partner(TimestampMixin):
     """Partners model"""
-    title = models.TextField(help_text="Partner title")
-    button_text = models.TextField(blank=True, null=True, help_text="Button text")
+    # Multilingual title fields
+    title_en = models.TextField(blank=True, null=True, help_text="Partner title (English)")
+    title_az = models.TextField(blank=True, null=True, help_text="Partner title (Azerbaijani)")
+    title_ru = models.TextField(blank=True, null=True, help_text="Partner title (Russian)")
+    
+    # Multilingual button text fields
+    button_text_en = models.TextField(blank=True, null=True, help_text="Button text (English)")
+    button_text_az = models.TextField(blank=True, null=True, help_text="Button text (Azerbaijani)")
+    button_text_ru = models.TextField(blank=True, null=True, help_text="Button text (Russian)")
+    
+    # Legacy fields
+    title = models.TextField(blank=True, null=True, help_text="Legacy title")
+    button_text = models.TextField(blank=True, null=True, help_text="Legacy button text")
     
     class Meta:
         db_table = 'partners'
@@ -283,13 +421,13 @@ class Partner(TimestampMixin):
         verbose_name_plural = 'Partners'
     
     def __str__(self):
-        return self.title
+        return self.title_en or self.title or f"Partner {self.id}"
 
 
 class PartnerLogo(TimestampMixin):
     """Partner logos model"""
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE, related_name='logos')
-    image_url = models.TextField(blank=True, help_text="Logo image URL")
+    image_url = models.TextField(help_text="Logo image URL")
     order = models.IntegerField(default=0, help_text="Display order")
     
     class Meta:
@@ -299,13 +437,26 @@ class PartnerLogo(TimestampMixin):
         ordering = ['order']
     
     def __str__(self):
-        return f"Logo {self.order} for {self.partner.title}"
+        partner_title = self.partner.title_en or self.partner.title or "Unknown Partner"
+        return f"Logo {self.order} for {partner_title}"
 
 
 class WorkProcess(TimestampMixin):
     """Work processes model"""
-    title = models.TextField(help_text="Work process title")
-    description = models.TextField(blank=True, null=True, help_text="Process description")
+    # Multilingual title fields
+    title_en = models.TextField(blank=True, null=True, help_text="Work process title (English)")
+    title_az = models.TextField(blank=True, null=True, help_text="Work process title (Azerbaijani)")
+    title_ru = models.TextField(blank=True, null=True, help_text="Work process title (Russian)")
+    
+    # Multilingual description fields
+    description_en = models.TextField(blank=True, null=True, help_text="Process description (English)")
+    description_az = models.TextField(blank=True, null=True, help_text="Process description (Azerbaijani)")
+    description_ru = models.TextField(blank=True, null=True, help_text="Process description (Russian)")
+    
+    # Legacy fields
+    title = models.TextField(blank=True, null=True, help_text="Legacy title")
+    description = models.TextField(blank=True, null=True, help_text="Legacy description")
+    
     order = models.IntegerField(default=0, help_text="Display order")
     image_url = models.TextField(blank=True, null=True, help_text="Process image URL")
     
@@ -316,4 +467,4 @@ class WorkProcess(TimestampMixin):
         ordering = ['order']
     
     def __str__(self):
-        return self.title
+        return self.title_en or self.title or f"Work Process {self.id}"

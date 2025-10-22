@@ -2,7 +2,7 @@
 
 # Wait for database to be ready
 echo "Waiting for database..."
-until PGPASSWORD=$POSTGRES_PASSWORD psql -h "$POSTGRES_SERVER" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\q'; do
+until PGPASSWORD=${DB_PASSWORD} psql -h "${DB_HOST}" -U "${DB_USER}" -d "${DB_NAME}" -c '\q'; do
   >&2 echo "Database is unavailable - sleeping"
   sleep 1
 done
