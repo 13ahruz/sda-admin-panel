@@ -354,12 +354,22 @@ class ServiceBenefit(TimestampMixin):
 
 class ContactMessage(TimestampMixin):
     """Contact messages model"""
-    first_name = models.TextField(help_text="First name")
-    last_name = models.TextField(help_text="Last name")
+    name = models.TextField(blank=True, null=True, help_text="Full name (for contact form)")
+    first_name = models.TextField(blank=True, null=True, help_text="First name (for careers form)")
+    last_name = models.TextField(blank=True, null=True, help_text="Last name (for careers form)")
     phone_number = models.TextField(help_text="Phone number")
     email = models.TextField(help_text="Email address")
     message = models.TextField(blank=True, null=True, help_text="Message content")
     cv_url = models.TextField(blank=True, null=True, help_text="CV file URL")
+    
+    # Additional fields for contact form
+    company = models.TextField(blank=True, null=True, help_text="Company name")
+    country = models.TextField(blank=True, null=True, help_text="Country")
+    property_type = models.TextField(blank=True, null=True, help_text="Property type")
+    
+    # Status tracking
+    is_read = models.BooleanField(default=False, help_text="Message has been read")
+    status = models.CharField(max_length=50, default="new", help_text="Message status")
     
     class Meta:
         db_table = 'contact_messages'
@@ -368,7 +378,11 @@ class ContactMessage(TimestampMixin):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.email}"
+        if self.name:
+            return f"{self.name} - {self.email}"
+        elif self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name} - {self.email}"
+        return f"{self.email}"
 
 
 class Approach(TimestampMixin):

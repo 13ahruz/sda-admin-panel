@@ -607,19 +607,31 @@ class ServiceBenefitAdmin(BaseAdmin):
 @admin.register(ContactMessage)
 class ContactMessageAdmin(BaseAdmin):
     form = ContactMessageAdminForm
-    list_display = ('first_name', 'last_name', 'email', 'phone_number', 'created_at')
-    search_fields = ('first_name', 'last_name', 'email', 'phone_number', 'message')
-    list_filter = ('created_at',)
+    list_display = ('get_full_name', 'email', 'phone_number', 'get_type', 'is_read', 'status', 'created_at')
+    search_fields = ('name', 'first_name', 'last_name', 'email', 'phone_number', 'message', 'company', 'country')
+    list_filter = ('created_at', 'is_read', 'status', 'property_type')
     fieldsets = (
-        ('Contact Information', {
-            'fields': ('first_name', 'last_name', 'phone_number', 'email')
+        ('Type', {
+            'fields': (),
+            'description': 'This message is from: <strong id="message-type"></strong>'
         }),
-        ('Message', {
-            'fields': ('message',)
+        ('Contact Information (Contact Form)', {
+            'fields': ('name', 'company', 'country', 'property_type'),
+            'classes': ('collapse',)
+        }),
+        ('Contact Information (Careers Form)', {
+            'fields': ('first_name', 'last_name'),
+            'classes': ('collapse',)
+        }),
+        ('Common Fields', {
+            'fields': ('phone_number', 'email', 'message')
         }),
         ('CV/Resume', {
             'fields': ('cv_upload', 'cv_url'),
             'description': 'You can either upload a file or enter a URL directly.'
+        }),
+        ('Status', {
+            'fields': ('is_read', 'status')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -627,6 +639,22 @@ class ContactMessageAdmin(BaseAdmin):
         }),
     )
     readonly_fields = ('created_at', 'updated_at')
+    
+    def get_full_name(self, obj):
+        if obj.name:
+            return obj.name
+        elif obj.first_name and obj.last_name:
+            return f"{obj.first_name} {obj.last_name}"
+        return "-"
+    get_full_name.short_description = 'Name'
+    
+    def get_type(self, obj):
+        if obj.cv_url:
+            return "Careers"
+        elif obj.company or obj.country or obj.property_type:
+            return "Contact"
+        return "Unknown"
+    get_type.short_description = 'Form Type'
     
     def save_model(self, request, obj, form, change):
         if form.cleaned_data.get('cv_upload'):
