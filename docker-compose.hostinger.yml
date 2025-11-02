@@ -54,4 +54,5 @@ volumes:
 
 networks:
   sda_network:
+    name: sda_sda_network
     external: true  # Use the existing backend network from docker-compose.hostinger.yml
