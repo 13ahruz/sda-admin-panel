@@ -13,6 +13,13 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
+# CSRF Settings for HTTPS
+CSRF_TRUSTED_ORIGINS = [
+    'https://sdaconsulting.az',
+    'https://www.sdaconsulting.az',
+    'http://localhost:8001',
+]
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
