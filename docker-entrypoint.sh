@@ -8,20 +8,10 @@ until PGPASSWORD=${DB_PASSWORD} psql -h "${DB_HOST}" -U "${DB_USER}" -d "${DB_NA
 done
 echo "Database is ready!"
 
-# Run Django migrations for built-in apps only (auth, admin, sessions, etc.)
-echo "Running Django migrations for built-in apps..."
-python manage.py migrate auth
-python manage.py migrate contenttypes
-python manage.py migrate sessions  
-python manage.py migrate admin
-python manage.py migrate messages
-echo "Django built-in tables created successfully!"
-
-# Create migrations for our custom models and apply them
-echo "Creating and applying SDA models migrations..."
-python manage.py makemigrations sda_models --verbosity=2
-python manage.py migrate sda_models --verbosity=2
-echo "SDA models migrations completed!"
+# Run Django migrations (tables already exist from backend, so fake them)
+echo "Running Django migrations..."
+python manage.py migrate --fake-initial
+echo "Django migrations completed!"
 
 # Create superuser if it doesn't exist
 echo "Checking for admin user..."
