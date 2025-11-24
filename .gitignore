@@ -1,10 +1,17 @@
-# Django specific
 *.pyc
 __pycache__/
-*.pyo
-*.pyd
-.Python
-*.so
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# Environment
 .env
 .venv
 env/
@@ -13,12 +20,6 @@ ENV/
 env.bak/
 venv.bak/
 
-# Django specific
-db.sqlite3
-media/
-staticfiles/
-static/
-
 # IDE
 .vscode/
 .idea/
@@ -26,15 +27,11 @@ static/
 *.swo
 *~
 
-# OS specific
+# OS
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-
-# Local settings
-local_settings.py
-
-# Secret key
-secret.txt
+# Distribution
+*.egg-info/
+dist/
+build/

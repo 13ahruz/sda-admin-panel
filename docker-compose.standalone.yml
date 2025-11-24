@@ -1,0 +1,27 @@
+# Standalone admin panel (connects to existing backend database)
+version: '3.8'
+
+services:
+  admin-panel:
+    build: .
+    container_name: sda-admin-panel
+    command: python manage.py runserver 0.0.0.0:8001
+    volumes:
+      - .:/app
+      - ../sda/uploads:/app/uploads
+      - static_volume:/app/staticfiles
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - MEDIA_ROOT=/app/uploads
+    networks:
+      - sda-network
+
+volumes:
+  static_volume:
+
+networks:
+  sda-network:
+    external: true

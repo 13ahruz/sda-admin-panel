@@ -8,35 +8,28 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        postgresql-client \
-        build-essential \
-        libpq-dev \
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    gcc \
+    python3-dev \
+    musl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy project
 COPY . /app/
 
-# Create directories for static and media files
-RUN mkdir -p /app/staticfiles /app/media
-
-# Set proper permissions for media directory
-RUN chmod 755 /app/media
+# Create staticfiles directory
+RUN mkdir -p /app/staticfiles
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
-
-# Create a script to wait for database and run the app
-COPY docker-entrypoint.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh
+RUN python manage.py collectstatic --noinput || true
 
 # Expose port
 EXPOSE 8001
 
-# Run the application
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+# Run gunicorn
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8001"]

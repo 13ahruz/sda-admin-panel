@@ -1,0 +1,613 @@
+"""
+Django Admin configuration for SDA Backend models.
+Provides comprehensive admin interface with inline editing, filters, and search.
+"""
+from django.contrib import admin
+from django.utils.html import format_html
+from .models import (
+    Project, ProjectPhoto, PropertySector, SectorInn,
+    News, NewsSection,
+    TeamMember, TeamSection, TeamSectionItem,
+    Service, ServiceBenefit,
+    About, AboutLogo,
+    ContactMessage,
+    Partner, PartnerLogo,
+    WorkProcess, Approach
+)
+from .forms import (
+    ProjectAdminForm, ProjectPhotoAdminForm, NewsAdminForm, NewsSectionAdminForm,
+    TeamMemberAdminForm, ServiceAdminForm, AboutLogoAdminForm, PartnerLogoAdminForm,
+    WorkProcessAdminForm
+)
+
+
+# ==================== Inline Admins ====================
+
+class ProjectPhotoInline(admin.TabularInline):
+    model = ProjectPhoto
+    form = ProjectPhotoAdminForm
+    extra = 1
+    fields = ('image', 'image_url', 'order', 'image_preview')
+    readonly_fields = ('image_preview',)
+    
+    def image_preview(self, obj):
+        if obj.image_url:
+            return format_html('<img src="{}" style="max-height: 100px; max-width: 200px;" />', obj.image_url)
+        return "No image"
+    image_preview.short_description = 'Preview'
+
+
+class SectorInnInline(admin.TabularInline):
+    model = SectorInn
+    extra = 1
+    fields = ('title', 'description', 'order')
+
+
+class NewsSectionInline(admin.StackedInline):
+    model = NewsSection
+    form = NewsSectionAdminForm
+    extra = 1
+    fields = (
+        'order',
+        ('heading', 'heading_en', 'heading_az', 'heading_ru'),
+        ('content', 'content_en', 'content_az', 'content_ru'),
+        'image',
+        'image_url'
+    )
+
+
+class TeamSectionItemInline(admin.TabularInline):
+    model = TeamSectionItem
+    extra = 1
+    fields = ('name', 'description', 'photo_url', 'button_text', 'order')
+
+
+class AboutLogoInline(admin.TabularInline):
+    model = AboutLogo
+    form = AboutLogoAdminForm
+    extra = 1
+    fields = ('image', 'image_url', 'order', 'logo_preview')
+    readonly_fields = ('logo_preview',)
+    
+    def logo_preview(self, obj):
+        if obj.image_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
+        return "No logo"
+    logo_preview.short_description = 'Preview'
+
+
+class PartnerLogoInline(admin.TabularInline):
+    model = PartnerLogo
+    form = PartnerLogoAdminForm
+    extra = 1
+    fields = ('image', 'image_url', 'order', 'logo_preview')
+    readonly_fields = ('logo_preview',)
+    
+    def logo_preview(self, obj):
+        if obj.image_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
+        return "No logo"
+    logo_preview.short_description = 'Preview'
+
+
+# ==================== Model Admins ====================
+
+@admin.register(PropertySector)
+class PropertySectorAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title_display', 'order', 'inns_count', 'projects_count')
+    list_editable = ('order',)
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title')
+    ordering = ('order',)
+    inlines = [SectorInnInline]
+    
+    fieldsets = (
+        ('English', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'description_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'description_ru')
+        }),
+        ('Legacy', {
+            'fields': ('title', 'description'),
+            'classes': ('collapse',)
+        }),
+        ('Settings', {
+            'fields': ('order',)
+        }),
+    )
+    
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"Sector {obj.id}"
+    title_display.short_description = 'Title'
+    
+    def inns_count(self, obj):
+        return obj.inns.count()
+    inns_count.short_description = 'Inns'
+    
+    def projects_count(self, obj):
+        return obj.projects.count()
+    projects_count.short_description = 'Projects'
+
+
+@admin.register(SectorInn)
+class SectorInnAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'property_sector', 'order')
+    list_filter = ('property_sector',)
+    search_fields = ('title', 'description')
+    list_editable = ('order',)
+    ordering = ('property_sector', 'order')
+
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    form = ProjectAdminForm
+    list_display = ('id', 'title_display', 'property_sector', 'client', 'year', 'tag', 'photos_count', 'cover_preview')
+    list_filter = ('property_sector', 'year', 'tag')
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title', 'client', 'slug')
+    list_editable = ('property_sector',)
+    ordering = ('-year', '-created_at')
+    inlines = [ProjectPhotoInline]
+    
+    fieldsets = (
+        ('Basic Info', {
+            'fields': ('slug', 'property_sector', 'client', 'year', 'tag')
+        }),
+        ('Cover Photo', {
+            'fields': ('cover_photo', 'cover_photo_url'),
+            'description': 'Upload a new cover photo or enter the URL directly'
+        }),
+        ('English', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'description_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'description_ru')
+        }),
+        ('Legacy', {
+            'fields': ('title',),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"Project {obj.id}"
+    title_display.short_description = 'Title'
+    
+    def photos_count(self, obj):
+        return obj.photos.count()
+    photos_count.short_description = 'Photos'
+    
+    def cover_preview(self, obj):
+        if obj.cover_photo_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', obj.cover_photo_url)
+        return "No cover"
+    cover_preview.short_description = 'Cover'
+
+
+@admin.register(ProjectPhoto)
+class ProjectPhotoAdmin(admin.ModelAdmin):
+    form = ProjectPhotoAdminForm
+    list_display = ('id', 'project', 'order', 'image_preview')
+    list_filter = ('project',)
+    list_editable = ('order',)
+    ordering = ('project', 'order')
+    fields = ('project', 'image', 'image_url', 'order')
+    
+    def image_preview(self, obj):
+        if obj.image_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
+        return "No image"
+    image_preview.short_description = 'Preview'
+
+
+@admin.register(News)
+class NewsAdmin(admin.ModelAdmin):
+    form = NewsAdminForm
+    list_display = ('id', 'title_display', 'tags_display', 'sections_count', 'created_at', 'photo_preview')
+    search_fields = ('title', 'title_en', 'title_az', 'title_ru', 'summary')
+    list_filter = ('created_at',)
+    ordering = ('-created_at',)
+    inlines = [NewsSectionInline]
+    
+    fieldsets = (
+        ('Photo & Tags', {
+            'fields': ('photo', 'photo_url', 'tags'),
+            'description': 'Upload a new photo or enter the URL directly'
+        }),
+        ('English', {
+            'fields': ('title_en', 'summary_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'summary_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'summary_ru')
+        }),
+        ('Legacy', {
+            'fields': ('title', 'summary'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"News {obj.id}"
+    title_display.short_description = 'Title'
+    
+    def tags_display(self, obj):
+        return ', '.join(obj.tags) if obj.tags else '-'
+    tags_display.short_description = 'Tags'
+    
+    def sections_count(self, obj):
+        return obj.sections.count()
+    sections_count.short_description = 'Sections'
+    
+    def photo_preview(self, obj):
+        if obj.photo_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', obj.photo_url)
+        return "No photo"
+    photo_preview.short_description = 'Photo'
+
+
+@admin.register(NewsSection)
+class NewsSectionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'news', 'order', 'heading_display')
+    list_filter = ('news',)
+    list_editable = ('order',)
+    ordering = ('news', 'order')
+    
+    def heading_display(self, obj):
+        return obj.heading_en or obj.heading or f"Section {obj.id}"
+    heading_display.short_description = 'Heading'
+
+
+@admin.register(TeamMember)
+class TeamMemberAdmin(admin.ModelAdmin):
+    form = TeamMemberAdminForm
+    list_display = ('id', 'name_display', 'role_display', 'linkedin_url', 'photo_preview')
+    search_fields = ('full_name_en', 'full_name_az', 'full_name_ru', 'full_name', 'role_en', 'role_az', 'role_ru')
+    ordering = ('id',)
+    
+    fieldsets = (
+        ('Photo', {
+            'fields': ('photo', 'photo_url'),
+            'description': 'Upload a new photo or enter the URL directly'
+        }),
+        ('English', {
+            'fields': ('full_name_en', 'role_en', 'bio_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('full_name_az', 'role_az', 'bio_az')
+        }),
+        ('Русский', {
+            'fields': ('full_name_ru', 'role_ru', 'bio_ru')
+        }),
+        ('Legacy', {
+            'fields': ('full_name', 'role', 'bio'),
+            'classes': ('collapse',)
+        }),
+        ('Additional', {
+            'fields': ('linkedin_url',)
+        }),
+    )
+    
+    def name_display(self, obj):
+        return obj.full_name_en or obj.full_name or f"Member {obj.id}"
+    name_display.short_description = 'Name'
+    
+    def role_display(self, obj):
+        return obj.role_en or obj.role or '-'
+    role_display.short_description = 'Role'
+    
+    def photo_preview(self, obj):
+        if obj.photo_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', obj.photo_url)
+        return "No photo"
+    photo_preview.short_description = 'Photo'
+
+
+@admin.register(TeamSection)
+class TeamSectionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'button_text', 'items_count')
+    search_fields = ('title',)
+    inlines = [TeamSectionItemInline]
+    
+    def items_count(self, obj):
+        return obj.items.count()
+    items_count.short_description = 'Items'
+
+
+@admin.register(TeamSectionItem)
+class TeamSectionItemAdmin(admin.ModelAdmin):
+    list_display = ('id', 'team_section', 'name', 'order')
+    list_filter = ('team_section',)
+    list_editable = ('order',)
+    ordering = ('team_section', 'order')
+
+
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    form = ServiceAdminForm
+    list_display = ('id', 'name_display', 'slug', 'order', 'icon_preview')
+    search_fields = ('name_en', 'name_az', 'name_ru', 'name', 'slug')
+    list_editable = ('order',)
+    ordering = ('order',)
+    
+    fieldsets = (
+        ('Basic', {
+            'fields': ('slug', 'order')
+        }),
+        ('Images', {
+            'fields': (('image', 'image_url'), ('icon', 'icon_url')),
+            'description': 'Upload new images or enter URLs directly'
+        }),
+        ('English', {
+            'fields': ('name_en', 'description_en', 'hero_text_en', 'meta_title_en', 'meta_description_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('name_az', 'description_az', 'hero_text_az', 'meta_title_az', 'meta_description_az')
+        }),
+        ('Русский', {
+            'fields': ('name_ru', 'description_ru', 'hero_text_ru', 'meta_title_ru', 'meta_description_ru')
+        }),
+        ('Legacy', {
+            'fields': ('name', 'description', 'hero_text', 'meta_title', 'meta_description'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def name_display(self, obj):
+        return obj.name_en or obj.name or f"Service {obj.id}"
+    name_display.short_description = 'Name'
+    
+    def icon_preview(self, obj):
+        if obj.icon_url:
+            return format_html('<img src="{}" style="max-height: 30px;" />', obj.icon_url)
+        return "No icon"
+    icon_preview.short_description = 'Icon'
+
+
+@admin.register(ServiceBenefit)
+class ServiceBenefitAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'order')
+    search_fields = ('title',)
+    list_editable = ('order',)
+    ordering = ('order',)
+
+
+@admin.register(About)
+class AboutAdmin(admin.ModelAdmin):
+    list_display = ('id', 'experience_display', 'project_count_display', 'members_display', 'logos_count')
+    inlines = [AboutLogoInline]
+    
+    fieldsets = (
+        ('English', {
+            'fields': ('experience_en', 'project_count_en', 'members_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('experience_az', 'project_count_az', 'members_az')
+        }),
+        ('Русский', {
+            'fields': ('experience_ru', 'project_count_ru', 'members_ru')
+        }),
+        ('Legacy', {
+            'fields': ('experience', 'project_count', 'members'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def experience_display(self, obj):
+        return obj.experience_en or obj.experience or '-'
+    experience_display.short_description = 'Experience'
+    
+    def project_count_display(self, obj):
+        return obj.project_count_en or obj.project_count or '-'
+    project_count_display.short_description = 'Projects'
+    
+    def members_display(self, obj):
+        return obj.members_en or obj.members or '-'
+    members_display.short_description = 'Members'
+    
+    def logos_count(self, obj):
+        return obj.logos.count()
+    logos_count.short_description = 'Logos'
+
+
+@admin.register(AboutLogo)
+class AboutLogoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'about', 'order', 'logo_preview')
+    list_filter = ('about',)
+    list_editable = ('order',)
+    ordering = ('about', 'order')
+    
+    def logo_preview(self, obj):
+        if obj.image_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
+        return "No logo"
+    logo_preview.short_description = 'Preview'
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name_display', 'email', 'phone_number', 'status', 'is_read', 'created_at', 'message_type')
+    list_filter = ('status', 'is_read', 'created_at', 'property_type')
+    search_fields = ('name', 'first_name', 'last_name', 'email', 'phone_number', 'company', 'message')
+    list_editable = ('status', 'is_read')
+    ordering = ('-created_at',)
+    readonly_fields = ('created_at', 'updated_at')
+    
+    fieldsets = (
+        ('Contact Info', {
+            'fields': ('name', 'first_name', 'last_name', 'email', 'phone_number')
+        }),
+        ('Additional Info', {
+            'fields': ('company', 'country', 'property_type')
+        }),
+        ('Message', {
+            'fields': ('message', 'cv_url')
+        }),
+        ('Status', {
+            'fields': ('status', 'is_read', 'created_at', 'updated_at')
+        }),
+    )
+    
+    def name_display(self, obj):
+        if obj.name:
+            return obj.name
+        elif obj.first_name or obj.last_name:
+            return f"{obj.first_name or ''} {obj.last_name or ''}".strip()
+        return '-'
+    name_display.short_description = 'Name'
+    
+    def message_type(self, obj):
+        if obj.cv_url:
+            return format_html('<span style="color: blue;">Career</span>')
+        return format_html('<span style="color: green;">Contact</span>')
+    message_type.short_description = 'Type'
+    
+    actions = ['mark_as_read', 'mark_as_unread', 'mark_as_new', 'mark_as_in_progress', 'mark_as_resolved']
+    
+    def mark_as_read(self, request, queryset):
+        queryset.update(is_read=True)
+    mark_as_read.short_description = "Mark as read"
+    
+    def mark_as_unread(self, request, queryset):
+        queryset.update(is_read=False)
+    mark_as_unread.short_description = "Mark as unread"
+    
+    def mark_as_new(self, request, queryset):
+        queryset.update(status='new')
+    mark_as_new.short_description = "Mark as new"
+    
+    def mark_as_in_progress(self, request, queryset):
+        queryset.update(status='in_progress')
+    mark_as_in_progress.short_description = "Mark as in progress"
+    
+    def mark_as_resolved(self, request, queryset):
+        queryset.update(status='resolved')
+    mark_as_resolved.short_description = "Mark as resolved"
+
+
+@admin.register(Partner)
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title_display', 'logos_count')
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title')
+    inlines = [PartnerLogoInline]
+    
+    fieldsets = (
+        ('English', {
+            'fields': ('title_en', 'button_text_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'button_text_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'button_text_ru')
+        }),
+        ('Legacy', {
+            'fields': ('title', 'button_text'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"Partner {obj.id}"
+    title_display.short_description = 'Title'
+    
+    def logos_count(self, obj):
+        return obj.logos.count()
+    logos_count.short_description = 'Logos'
+
+
+@admin.register(PartnerLogo)
+class PartnerLogoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'partner', 'order', 'logo_preview')
+    list_filter = ('partner',)
+    list_editable = ('order',)
+    ordering = ('partner', 'order')
+    
+    def logo_preview(self, obj):
+        if obj.image_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
+        return "No logo"
+    logo_preview.short_description = 'Preview'
+
+
+@admin.register(WorkProcess)
+class WorkProcessAdmin(admin.ModelAdmin):
+    form = WorkProcessAdminForm
+    list_display = ('id', 'title_display', 'order', 'image_preview')
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title')
+    list_editable = ('order',)
+    ordering = ('order',)
+    
+    fieldsets = (
+        ('English', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'description_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'description_ru')
+        }),
+        ('Legacy', {
+            'fields': ('title', 'description'),
+            'classes': ('collapse',)
+        }),
+        ('Settings', {
+            'fields': ('order', 'image', 'image_url'),
+            'description': 'Upload a new image or enter the URL directly'
+        }),
+    )
+    
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"Process {obj.id}"
+    title_display.short_description = 'Title'
+    
+    def image_preview(self, obj):
+        if obj.image_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
+        return "No image"
+    image_preview.short_description = 'Image'
+
+
+@admin.register(Approach)
+class ApproachAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title_display', 'order')
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title')
+    list_editable = ('order',)
+    ordering = ('order',)
+    
+    fieldsets = (
+        ('English', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'description_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'description_ru')
+        }),
+        ('Legacy', {
+            'fields': ('title', 'description'),
+            'classes': ('collapse',)
+        }),
+        ('Settings', {
+            'fields': ('order',)
+        }),
+    )
+    
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"Approach {obj.id}"
+    title_display.short_description = 'Title'
+
+
+# Customize admin site
+admin.site.site_header = "SDA Consulting Admin Panel"
+admin.site.site_title = "SDA Admin"
+admin.site.index_title = "Welcome to SDA Consulting Administration"

@@ -1,137 +1,215 @@
-# SDA Django Admin Panel
+# SDA Admin Panel
 
-This Django admin panel provides a web interface to manage the content of your SDA FastAPI backend. It connects to the same PostgreSQL database and allows you to manage all your data through Django's powerful admin interface.
+Django-based admin panel for managing the SDA Consulting FastAPI backend database.
 
 ## Features
 
-- **Complete Content Management**: Manage all SDA models including About, Projects, News, Team, Services, etc.
-- **Import/Export**: Built-in data import/export functionality for key models
-- **Image Previews**: Visual previews of images in the admin interface
-- **Inline Editing**: Edit related objects (like photos, logos) directly within parent objects
-- **Search & Filtering**: Advanced search and filtering capabilities
-- **Responsive Interface**: Works on desktop and mobile devices
+- **Complete Database Management**: Manage all backend tables through a user-friendly interface
+- **Multilingual Support**: Edit content in English, Azerbaijani, and Russian
+- **Inline Editing**: Edit related models (photos, sections, logos) within parent records
+- **Advanced Filtering**: Filter records by various criteria
+- **Image Previews**: View uploaded images directly in the admin interface
+- **Status Management**: Track and manage contact messages and their statuses
+- **Bulk Actions**: Perform actions on multiple records at once
 
 ## Models Managed
 
-- **About**: Company information and logos
-- **Projects**: Project portfolio with photos and categories
-- **News**: News articles with sections and images
-- **Team**: Team members and team sections
-- **Services**: Service offerings and benefits
-- **Partners**: Partner information and logos
-- **Property Sectors**: Real estate sectors and inns
-- **Approaches**: Company approaches
-- **Work Processes**: Workflow information
-- **Contact Messages**: Contact form submissions
+### Content Models
+- **Projects**: Project portfolio with photos, sectors, and multilingual content
+- **News**: News articles with sections and multilingual support
+- **Services**: Service listings with benefits and SEO metadata
+- **Team Members**: Team profiles with LinkedIn integration
 
-## Installation & Deployment
+### Configuration Models
+- **Property Sectors**: Property sector categories with inns (features)
+- **Work Processes**: Company work process steps
+- **Approaches**: Company approach methodology
+- **About**: Company information and statistics
+- **Partners**: Partner logos and information
 
-### 1. Install Dependencies
+### Communication
+- **Contact Messages**: Contact form and career applications with status tracking
 
+## Installation
+
+### Local Development
+
+1. **Install dependencies**:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment
-
-Update the `.env` file with your database credentials:
-
+2. **Set environment variables**:
+Create a `.env` file in the admin-panel directory:
 ```env
 # Database Configuration (same as FastAPI backend)
-POSTGRES_USER=your_postgres_user
-POSTGRES_PASSWORD=your_postgres_password
-POSTGRES_SERVER=your_postgres_host
-POSTGRES_PORT=5432
 POSTGRES_DB=sda_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_SERVER=localhost
+POSTGRES_PORT=5432
 
-# Django Settings
-DEBUG=False
-SECRET_KEY=your-secret-key-here
-ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+# Django Configuration
+DJANGO_SECRET_KEY=your-secret-key-here
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Media Files (path to backend uploads folder)
+MEDIA_ROOT=../sda/uploads
 ```
 
-### 3. Collect Static Files
-
+3. **Run migrations** (Django will inspect existing database):
 ```bash
-python manage.py collectstatic --noinput
+python manage.py migrate
 ```
 
-### 4. Create Superuser
-
+4. **Create superuser**:
 ```bash
 python manage.py createsuperuser
 ```
 
-### 5. Run the Application
-
-For development:
+5. **Run the development server**:
 ```bash
-python manage.py runserver 0.0.0.0:8001
+python manage.py runserver 8001
 ```
 
-For production, configure your web server (Apache/Nginx) to serve the Django application.
+6. **Access the admin panel**:
+Open http://localhost:8001/admin/ and login with your superuser credentials.
 
-## Hostinger Deployment
+### Docker Deployment
 
-1. Upload all files to your Hostinger hosting directory
-2. Install Python dependencies using pip
-3. Configure your database settings in `.env`
-4. Set up a subdomain or directory for the admin panel
-5. Configure your web server to run the Django application
-6. Create a superuser account
-7. Access the admin panel at `https://yourdomain.com/admin/`
+1. **Build and run with Docker Compose**:
+```bash
+docker-compose up -d
+```
 
-## Database Integration
+2. **Create superuser in container**:
+```bash
+docker-compose exec admin-panel python manage.py createsuperuser
+```
 
-This admin panel uses the same PostgreSQL database as your FastAPI backend. It does NOT create or modify the database schema - it only manages the existing data. The models are mapped to the existing tables created by your FastAPI application.
+3. **Access the admin panel**:
+Open http://localhost:8001/admin/
 
-## Security Considerations
+## Database Connection
 
-- Always set `DEBUG=False` in production
-- Use a strong `SECRET_KEY`
-- Restrict `ALLOWED_HOSTS` to your actual domains
-- Use HTTPS in production
-- Regularly update dependencies
-- Limit admin access to authorized personnel only
+The admin panel connects to the **same PostgreSQL database** as your FastAPI backend. All models use `managed=False` which means:
+- Django won't create or modify tables
+- Django only reads and updates existing data
+- Your FastAPI backend remains the source of truth for database schema
 
-## Admin Interface Features
+## Usage Guide
 
-### Content Management
-- **Projects**: Manage project portfolio with cover images and photo galleries
-- **News**: Create and manage news articles with multiple sections
-- **Team**: Manage team members and organizational sections
-- **Services**: Configure service offerings and benefits
+### Managing Projects
 
-### Media Management
-- Image preview in list views
-- Direct image URL management
-- Order management for galleries and collections
+1. Navigate to **Projects** in the admin
+2. Click **Add Project** or edit an existing one
+3. Fill in multilingual fields (English, Azerbaijani, Russian)
+4. Add photos using the inline photo section
+5. Set property sector, client, year, and tags
+6. Save the project
 
-### Data Import/Export
-- Export data to Excel/CSV formats
-- Import data from external sources
-- Bulk operations support
+### Managing News Articles
+
+1. Go to **News Articles**
+2. Create a new article or edit existing
+3. Add title, summary, and photo
+4. Add sections with headings, content, and optional images
+5. Set tags for categorization
+
+### Managing Contact Messages
+
+1. View all messages in **Contact Messages**
+2. Filter by status (new, in progress, resolved) or type (contact/career)
+3. Use bulk actions to mark as read/unread
+4. Update status as you process messages
+5. View CV uploads for career applications
+
+### Managing Team Members
+
+1. Navigate to **Team Members**
+2. Add member with multilingual name, role, and bio
+3. Upload photo and add LinkedIn URL
+4. Save to display on website
+
+### Managing Services
+
+1. Go to **Services**
+2. Add service with slug (URL-friendly identifier)
+3. Fill multilingual name, description, hero text
+4. Add SEO metadata (meta title/description)
+5. Set order for display sequence
+6. Upload icon and image
+
+## File Uploads
+
+The admin panel displays images uploaded through the FastAPI backend. The `MEDIA_ROOT` setting should point to the FastAPI uploads directory (default: `../sda/uploads`).
+
+Image uploads should be handled through the FastAPI backend API, not directly through Django admin to maintain consistency.
+
+## Security
+
+### Production Deployment
+
+Before deploying to production:
+
+1. **Set strong SECRET_KEY**:
+```env
+DJANGO_SECRET_KEY=generate-a-strong-random-secret-key
+```
+
+2. **Disable DEBUG**:
+```env
+DEBUG=False
+```
+
+3. **Set ALLOWED_HOSTS**:
+```env
+ALLOWED_HOSTS=your-domain.com,your-ip-address
+```
+
+4. **Use HTTPS**: Configure your web server (nginx/Apache) to use SSL
+5. **Set strong superuser password**
+6. **Restrict admin access**: Consider IP whitelisting or VPN
 
 ## Troubleshooting
 
-### Database Connection Issues
-- Verify database credentials in `.env`
-- Ensure PostgreSQL is running and accessible
-- Check firewall settings for database access
+### Database Connection Error
+- Verify PostgreSQL is running
+- Check database credentials in `.env`
+- Ensure database exists and is accessible
 
-### Static Files Not Loading
-- Run `python manage.py collectstatic`
-- Check static file configuration in settings
-- Verify web server static file serving
+### Images Not Displaying
+- Check `MEDIA_ROOT` path in settings
+- Verify uploads directory permissions
+- Ensure images exist in the uploads folder
 
 ### Permission Errors
-- Ensure proper file permissions on the hosting server
-- Check directory ownership and access rights
+- Make sure superuser account is created
+- Check database user has sufficient privileges
+
+## Maintenance
+
+### Backup Database
+```bash
+pg_dump -U postgres sda_db > backup.sql
+```
+
+### View Logs
+```bash
+# Docker
+docker-compose logs -f admin-panel
+
+# Local
+Check console output where manage.py runserver is running
+```
 
 ## Support
 
-For issues related to the admin panel, check:
-1. Django logs for error messages
-2. Database connectivity
-3. Environment variable configuration
-4. Static file serving setup
+For issues or questions, contact the development team.
+
+## Version
+
+- Django: 4.2.x
+- Python: 3.10+
+- PostgreSQL: 14+
