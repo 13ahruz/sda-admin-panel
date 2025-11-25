@@ -16,6 +16,13 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,153.92.223.91').split(',')
 
+# CSRF trusted origins for proxy
+CSRF_TRUSTED_ORIGINS = [
+    'https://sdaconsulting.az',
+    'https://www.sdaconsulting.az',
+    'http://localhost:8001',
+]
+
 
 # Application definition
 
@@ -120,25 +127,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ADMIN_SITE_HEADER = "SDA Consulting Admin Panel"
 ADMIN_SITE_TITLE = "SDA Admin"
 ADMIN_INDEX_TITLE = "Welcome to SDA Consulting Administration"
-
-# Logging configuration
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-    },
-}
