@@ -14,10 +14,14 @@ services:
       - .env
     environment:
       - MEDIA_ROOT=/app/uploads
-      - POSTGRES_SERVER=host.docker.internal
+      - POSTGRES_SERVER=sda_postgres
     restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - sda_default
 
 volumes:
   static_volume:
+
+networks:
+  sda_default:
+    external: true
