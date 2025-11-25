@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  admin-panel:
+    build: .
+    container_name: sda-admin-panel
+    command: gunicorn sda_admin.wsgi:application --bind 0.0.0.0:8001 --workers 3 --timeout 120
+    volumes:
+      - /root/sda/uploads:/app/uploads
+      - static_volume:/app/staticfiles
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - MEDIA_ROOT=/app/uploads
+    restart: unless-stopped
+    networks:
+      - sda-network
+
+volumes:
+  static_volume:
+
+networks:
+  sda-network:
+    external: true
