@@ -17,11 +17,11 @@ services:
       - POSTGRES_SERVER=sda_postgres
     restart: unless-stopped
     networks:
-      - sda_default
+      - sda_sda_network
 
 volumes:
   static_volume:
 
 networks:
-  sda_default:
+  sda_sda_network:
     external: true
