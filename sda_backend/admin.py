@@ -132,13 +132,14 @@ class PropertySectorAdmin(admin.ModelAdmin):
     projects_count.short_description = 'Projects'
 
 
-@admin.register(SectorInn)
-class SectorInnAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'property_sector', 'order')
-    list_filter = ('property_sector',)
-    search_fields = ('title', 'description')
-    list_editable = ('order',)
-    ordering = ('property_sector', 'order')
+# SectorInn is managed via PropertySector inline
+# @admin.register(SectorInn)
+# class SectorInnAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'title', 'property_sector', 'order')
+#     list_filter = ('property_sector',)
+#     search_fields = ('title', 'description')
+#     list_editable = ('order',)
+#     ordering = ('property_sector', 'order')
 
 
 @admin.register(Project)
@@ -189,20 +190,21 @@ class ProjectAdmin(admin.ModelAdmin):
     cover_preview.short_description = 'Cover'
 
 
-@admin.register(ProjectPhoto)
-class ProjectPhotoAdmin(admin.ModelAdmin):
-    form = ProjectPhotoAdminForm
-    list_display = ('id', 'project', 'order', 'image_preview')
-    list_filter = ('project',)
-    list_editable = ('order',)
-    ordering = ('project', 'order')
-    fields = ('project', 'image', 'image_url', 'order')
-    
-    def image_preview(self, obj):
-        if obj.image_url:
-            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
-        return "No image"
-    image_preview.short_description = 'Preview'
+# ProjectPhoto is managed via Project inline
+# @admin.register(ProjectPhoto)
+# class ProjectPhotoAdmin(admin.ModelAdmin):
+#     form = ProjectPhotoAdminForm
+#     list_display = ('id', 'project', 'order', 'image_preview')
+#     list_filter = ('project',)
+#     list_editable = ('order',)
+#     ordering = ('project', 'order')
+#     fields = ('project', 'image', 'image_url', 'order')
+#     
+#     def image_preview(self, obj):
+#         if obj.image_url:
+#             return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
+#         return "No image"
+#     image_preview.short_description = 'Preview'
 
 
 @admin.register(News)
@@ -253,16 +255,17 @@ class NewsAdmin(admin.ModelAdmin):
     photo_preview.short_description = 'Photo'
 
 
-@admin.register(NewsSection)
-class NewsSectionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'news', 'order', 'heading_display')
-    list_filter = ('news',)
-    list_editable = ('order',)
-    ordering = ('news', 'order')
-    
-    def heading_display(self, obj):
-        return obj.heading_en or obj.heading or f"Section {obj.id}"
-    heading_display.short_description = 'Heading'
+# NewsSection is managed via News inline
+# @admin.register(NewsSection)
+# class NewsSectionAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'news', 'order', 'heading_display')
+#     list_filter = ('news',)
+#     list_editable = ('order',)
+#     ordering = ('news', 'order')
+#     
+#     def heading_display(self, obj):
+#         return obj.heading_en or obj.heading or f"Section {obj.id}"
+#     heading_display.short_description = 'Heading'
 
 
 @admin.register(TeamMember)
@@ -321,12 +324,13 @@ class TeamSectionAdmin(admin.ModelAdmin):
     items_count.short_description = 'Items'
 
 
-@admin.register(TeamSectionItem)
-class TeamSectionItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'team_section', 'name', 'order')
-    list_filter = ('team_section',)
-    list_editable = ('order',)
-    ordering = ('team_section', 'order')
+# TeamSectionItem is managed via TeamSection inline
+# @admin.register(TeamSectionItem)
+# class TeamSectionItemAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'team_section', 'name', 'order')
+#     list_filter = ('team_section',)
+#     list_editable = ('order',)
+#     ordering = ('team_section', 'order')
 
 
 @admin.register(Service)
@@ -371,12 +375,13 @@ class ServiceAdmin(admin.ModelAdmin):
     icon_preview.short_description = 'Icon'
 
 
-@admin.register(ServiceBenefit)
-class ServiceBenefitAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'order')
-    search_fields = ('title',)
-    list_editable = ('order',)
-    ordering = ('order',)
+# ServiceBenefit - removing as it's not commonly used
+# @admin.register(ServiceBenefit)
+# class ServiceBenefitAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'title', 'order')
+#     search_fields = ('title',)
+#     list_editable = ('order',)
+#     ordering = ('order',)
 
 
 @admin.register(About)
@@ -417,18 +422,19 @@ class AboutAdmin(admin.ModelAdmin):
     logos_count.short_description = 'Logos'
 
 
-@admin.register(AboutLogo)
-class AboutLogoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'about', 'order', 'logo_preview')
-    list_filter = ('about',)
-    list_editable = ('order',)
-    ordering = ('about', 'order')
-    
-    def logo_preview(self, obj):
-        if obj.image_url:
-            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
-        return "No logo"
-    logo_preview.short_description = 'Preview'
+# AboutLogo is managed via About inline
+# @admin.register(AboutLogo)
+# class AboutLogoAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'about', 'order', 'logo_preview')
+#     list_filter = ('about',)
+#     list_editable = ('order',)
+#     ordering = ('about', 'order')
+#     
+#     def logo_preview(self, obj):
+#         if obj.image_url:
+#             return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
+#         return "No logo"
+#     logo_preview.short_description = 'Preview'
 
 
 @admin.register(ContactMessage)
@@ -523,18 +529,19 @@ class PartnerAdmin(admin.ModelAdmin):
     logos_count.short_description = 'Logos'
 
 
-@admin.register(PartnerLogo)
-class PartnerLogoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'partner', 'order', 'logo_preview')
-    list_filter = ('partner',)
-    list_editable = ('order',)
-    ordering = ('partner', 'order')
-    
-    def logo_preview(self, obj):
-        if obj.image_url:
-            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
-        return "No logo"
-    logo_preview.short_description = 'Preview'
+# PartnerLogo is managed via Partner inline
+# @admin.register(PartnerLogo)
+# class PartnerLogoAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'partner', 'order', 'logo_preview')
+#     list_filter = ('partner',)
+#     list_editable = ('order',)
+#     ordering = ('partner', 'order')
+#     
+#     def logo_preview(self, obj):
+#         if obj.image_url:
+#             return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
+#         return "No logo"
+#     logo_preview.short_description = 'Preview'
 
 
 @admin.register(WorkProcess)
