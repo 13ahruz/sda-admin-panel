@@ -4,7 +4,7 @@ services:
   admin-panel:
     build: .
     container_name: sda-admin-panel
-    command: gunicorn sda_admin.wsgi:application --bind 0.0.0.0:8001 --workers 3 --timeout 120
+    command: gunicorn admin_panel.wsgi:application --bind 0.0.0.0:8001 --workers 3 --timeout 120
     volumes:
       - /root/sda/uploads:/app/uploads
       - static_volume:/app/staticfiles
