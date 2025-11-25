@@ -15,12 +15,6 @@ services:
     environment:
       - MEDIA_ROOT=/app/uploads
     restart: unless-stopped
-    networks:
-      - sda-network
 
 volumes:
   static_volume:
-
-networks:
-  sda-network:
-    external: true
