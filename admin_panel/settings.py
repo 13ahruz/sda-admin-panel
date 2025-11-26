@@ -19,10 +19,11 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,153.92.223.
 # Trust X-Forwarded-Proto header from nginx/Cloudflare
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# CSRF trusted origins for proxy
+# CSRF trusted origins for proxy (includes wildcard for Cloudflare)
 CSRF_TRUSTED_ORIGINS = [
     'https://sdaconsulting.az',
     'https://www.sdaconsulting.az',
+    'https://*.sdaconsulting.az',  # Wildcard for Cloudflare edge cases
     'http://localhost:8001',
 ]
 
