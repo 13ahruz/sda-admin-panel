@@ -16,6 +16,9 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,153.92.223.91,sdaconsulting.az,www.sdaconsulting.az').split(',')
 
+# Trust X-Forwarded-Proto header from nginx/Cloudflare
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # CSRF trusted origins for proxy
 CSRF_TRUSTED_ORIGINS = [
     'https://sdaconsulting.az',
