@@ -14,7 +14,7 @@ services:
       - .env
     environment:
       - MEDIA_ROOT=/app/uploads
-      - POSTGRES_SERVER=sda_postgres
+      - POSTGRES_SERVER=sda-db-1
     restart: unless-stopped
     networks:
       - sda_sda_network
