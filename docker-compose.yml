@@ -11,12 +11,16 @@ services:
       - static_volume:/app/staticfiles
     ports:
       - "8001:8001"
-    env_file:
-      - .env
     environment:
+      - POSTGRES_DB=${POSTGRES_DB:-sda_db}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_SERVER=${POSTGRES_SERVER:-sda-db-1}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - MEDIA_ROOT=/app/uploads
-      - POSTGRES_SERVER=sda-db-1
-      - POSTGRES_PORT=5432
+      - DEBUG=${DEBUG:-False}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-change-me}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
     networks:
       - sda_sda_network
 
