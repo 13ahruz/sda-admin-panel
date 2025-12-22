@@ -9,7 +9,7 @@ import os
 import requests
 from .models import (
     Project, ProjectPhoto, News, NewsSection, TeamMember,
-    Service, About, AboutLogo, Partner, PartnerLogo, WorkProcess
+    Service, ServiceProcess, About, Partner, PartnerLogo, WorkProcess
 )
 
 
@@ -217,34 +217,6 @@ class ServiceAdminForm(forms.ModelForm, ImageUploadMixin):
         return instance
 
 
-class AboutLogoAdminForm(forms.ModelForm, ImageUploadMixin):
-    image = forms.ImageField(required=False, label='Logo Upload')
-    
-    class Meta:
-        model = AboutLogo
-        fields = '__all__'
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Make URL field optional
-        if 'image_url' in self.fields:
-            self.fields['image_url'].required = False
-    
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        
-        # Handle logo upload
-        if self.cleaned_data.get('image'):
-            instance.image_url = self.save_uploaded_file(
-                self.cleaned_data['image'],
-                'about/logos'
-            )
-        
-        if commit:
-            instance.save()
-        return instance
-
-
 class PartnerLogoAdminForm(forms.ModelForm, ImageUploadMixin):
     image = forms.ImageField(required=False, label='Logo Upload')
     
@@ -294,6 +266,34 @@ class WorkProcessAdminForm(forms.ModelForm, ImageUploadMixin):
             instance.image_url = self.save_uploaded_file(
                 self.cleaned_data['image'],
                 'work-processes'
+            )
+        
+        if commit:
+            instance.save()
+        return instance
+
+
+class ServiceProcessAdminForm(forms.ModelForm, ImageUploadMixin):
+    icon = forms.ImageField(required=False, label='Icon Upload')
+    
+    class Meta:
+        model = ServiceProcess
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make URL field optional
+        if 'icon_url' in self.fields:
+            self.fields['icon_url'].required = False
+    
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        # Handle icon upload
+        if self.cleaned_data.get('icon'):
+            instance.icon_url = self.save_uploaded_file(
+                self.cleaned_data['icon'],
+                'services/process-icons'
             )
         
         if commit:

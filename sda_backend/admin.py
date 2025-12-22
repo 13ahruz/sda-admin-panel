@@ -5,19 +5,19 @@ Provides comprehensive admin interface with inline editing, filters, and search.
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    Project, ProjectPhoto, PropertySector, SectorInn,
+    Project, ProjectPhoto, ProjectService, ProjectSolution, PropertySector, SectorInn, PropertySectorProcess,
     News, NewsSection,
     TeamMember, TeamSection, TeamSectionItem,
-    Service, ServiceBenefit,
-    About, AboutLogo,
+    Service, ServiceBenefit, ServiceProcess, ServiceWorkProcess,
+    About,
     ContactMessage,
     Partner, PartnerLogo,
     WorkProcess, Approach
 )
 from .forms import (
     ProjectAdminForm, ProjectPhotoAdminForm, NewsAdminForm, NewsSectionAdminForm,
-    TeamMemberAdminForm, ServiceAdminForm, AboutLogoAdminForm, PartnerLogoAdminForm,
-    WorkProcessAdminForm
+    TeamMemberAdminForm, ServiceAdminForm, PartnerLogoAdminForm,
+    WorkProcessAdminForm, ServiceProcessAdminForm
 )
 
 
@@ -37,10 +37,36 @@ class ProjectPhotoInline(admin.TabularInline):
     image_preview.short_description = 'Preview'
 
 
+class ProjectServiceInline(admin.TabularInline):
+    model = ProjectService
+    extra = 1
+    fields = ('service', 'order')
+    autocomplete_fields = ['service']
+    ordering = ['order']
+
+
+class ProjectSolutionInline(admin.TabularInline):
+    model = ProjectSolution
+    extra = 1
+    fields = ('order', 'title_en', 'title_az', 'title_ru', 'description_en', 'description_az', 'description_ru')
+    classes = ('collapse',)
+    verbose_name = 'Delivered Solution'
+    verbose_name_plural = 'Delivered Solutions'
+
+
 class SectorInnInline(admin.TabularInline):
     model = SectorInn
     extra = 1
     fields = ('title', 'description', 'order')
+
+
+class PropertySectorProcessInline(admin.TabularInline):
+    model = PropertySectorProcess
+    extra = 1
+    fields = ('order', 'title_en', 'title_az', 'title_ru', 'description_en', 'description_az', 'description_ru')
+    classes = ('collapse',)
+    verbose_name = 'Process Step'
+    verbose_name_plural = 'Process Steps'
 
 
 class NewsSectionInline(admin.StackedInline):
@@ -62,20 +88,6 @@ class TeamSectionItemInline(admin.TabularInline):
     fields = ('name', 'description', 'photo_url', 'button_text', 'order')
 
 
-class AboutLogoInline(admin.TabularInline):
-    model = AboutLogo
-    form = AboutLogoAdminForm
-    extra = 1
-    fields = ('image', 'image_url', 'order', 'logo_preview')
-    readonly_fields = ('logo_preview',)
-    
-    def logo_preview(self, obj):
-        if obj.image_url:
-            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
-        return "No logo"
-    logo_preview.short_description = 'Preview'
-
-
 class PartnerLogoInline(admin.TabularInline):
     model = PartnerLogo
     form = PartnerLogoAdminForm
@@ -90,15 +102,44 @@ class PartnerLogoInline(admin.TabularInline):
     logo_preview.short_description = 'Preview'
 
 
+class ServiceBenefitInline(admin.TabularInline):
+    model = ServiceBenefit
+    extra = 1
+    fields = ('order', 'title_en', 'title_az', 'title_ru', 'description_en', 'description_az', 'description_ru')
+    classes = ('collapse',)
+    verbose_name = 'Benefit'
+    verbose_name_plural = 'Benefits'
+
+
+class ServiceProcessInline(admin.TabularInline):
+    model = ServiceProcess
+    form = ServiceProcessAdminForm
+    extra = 1
+    fields = ('order', 'icon', 'icon_url', 'title_en', 'title_az', 'title_ru', 'description_en', 'description_az', 'description_ru')
+    readonly_fields = ('icon_url',)
+    classes = ('collapse',)
+    verbose_name = 'What We Do Service'
+    verbose_name_plural = 'What We Do Services'
+
+
+class ServiceWorkProcessInline(admin.TabularInline):
+    model = ServiceWorkProcess
+    extra = 1
+    fields = ('order', 'title_en', 'title_az', 'title_ru', 'description_en', 'description_az', 'description_ru')
+    classes = ('collapse',)
+    verbose_name = 'Work Process Step'
+    verbose_name_plural = 'Work Process Steps'
+
+
 # ==================== Model Admins ====================
 
 @admin.register(PropertySector)
 class PropertySectorAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title_display', 'order', 'inns_count', 'projects_count')
+    list_display = ('id', 'title_display', 'order', 'inns_count', 'processes_count', 'projects_count')
     list_editable = ('order',)
     search_fields = ('title_en', 'title_az', 'title_ru', 'title')
     ordering = ('order',)
-    inlines = [SectorInnInline]
+    inlines = [SectorInnInline, PropertySectorProcessInline]
     
     fieldsets = (
         ('English', {
@@ -127,9 +168,49 @@ class PropertySectorAdmin(admin.ModelAdmin):
         return obj.inns.count()
     inns_count.short_description = 'Inns'
     
+    def processes_count(self, obj):
+        return obj.process_steps.count() if hasattr(obj, 'process_steps') else 0
+    processes_count.short_description = 'Process Steps'
+    
     def projects_count(self, obj):
         return obj.projects.count()
     projects_count.short_description = 'Projects'
+
+
+@admin.register(PropertySectorProcess)
+class PropertySectorProcessAdmin(admin.ModelAdmin):
+    list_display = ('id', 'property_sector_name', 'title_display', 'order')
+    list_filter = ('property_sector__title_en',)
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title', 'description_en', 'description_az', 'description_ru')
+    list_editable = ('order',)
+    ordering = ('property_sector__id', 'order',)
+    
+    fieldsets = (
+        ('Basic', {
+            'fields': ('property_sector', 'order')
+        }),
+        ('English', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'description_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'description_ru')
+        }),
+        ('Legacy', {
+            'fields': ('title', 'description'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"Process {obj.id}"
+    title_display.short_description = 'Title'
+    
+    def property_sector_name(self, obj):
+        return obj.property_sector.title_en or obj.property_sector.title or f"Sector {obj.property_sector.id}"
+    property_sector_name.short_description = 'Property Sector'
 
 
 # SectorInn is managed via PropertySector inline
@@ -150,7 +231,7 @@ class ProjectAdmin(admin.ModelAdmin):
     search_fields = ('title_en', 'title_az', 'title_ru', 'title', 'client', 'slug')
     list_editable = ('property_sector',)
     ordering = ('-year', '-created_at')
-    inlines = [ProjectPhotoInline]
+    inlines = [ProjectPhotoInline, ProjectServiceInline, ProjectSolutionInline]
     
     fieldsets = (
         ('Basic Info', {
@@ -336,10 +417,11 @@ class TeamSectionAdmin(admin.ModelAdmin):
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     form = ServiceAdminForm
-    list_display = ('id', 'name_display', 'slug', 'order', 'icon_preview')
+    list_display = ('id', 'name_display', 'slug', 'order', 'benefits_count', 'processes_count', 'icon_preview')
     search_fields = ('name_en', 'name_az', 'name_ru', 'name', 'slug')
     list_editable = ('order',)
     ordering = ('order',)
+    inlines = [ServiceBenefitInline, ServiceProcessInline, ServiceWorkProcessInline]
     
     fieldsets = (
         ('Basic', {
@@ -368,6 +450,14 @@ class ServiceAdmin(admin.ModelAdmin):
         return obj.name_en or obj.name or f"Service {obj.id}"
     name_display.short_description = 'Name'
     
+    def benefits_count(self, obj):
+        return obj.benefits.count() if hasattr(obj, 'benefits') else 0
+    benefits_count.short_description = 'Benefits'
+    
+    def processes_count(self, obj):
+        return obj.process_steps.count() if hasattr(obj, 'process_steps') else 0
+    processes_count.short_description = 'Process Steps'
+    
     def icon_preview(self, obj):
         if obj.icon_url:
             return format_html('<img src="{}" style="max-height: 30px;" />', obj.icon_url)
@@ -375,51 +465,100 @@ class ServiceAdmin(admin.ModelAdmin):
     icon_preview.short_description = 'Icon'
 
 
-# ServiceBenefit - removing as it's not commonly used
-# @admin.register(ServiceBenefit)
-# class ServiceBenefitAdmin(admin.ModelAdmin):
-#     list_display = ('id', 'title', 'order')
-#     search_fields = ('title',)
-#     list_editable = ('order',)
-#     ordering = ('order',)
-
-
-@admin.register(About)
-class AboutAdmin(admin.ModelAdmin):
-    list_display = ('id', 'experience_display', 'project_count_display', 'members_display', 'logos_count')
-    inlines = [AboutLogoInline]
+@admin.register(ServiceBenefit)
+class ServiceBenefitAdmin(admin.ModelAdmin):
+    list_display = ('id', 'service_name', 'title_display', 'order')
+    list_filter = ('service__name_en',)
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title', 'description_en', 'description_az', 'description_ru')
+    list_editable = ('order',)
+    ordering = ('service__id', 'order',)
     
     fieldsets = (
+        ('Basic', {
+            'fields': ('service', 'order')
+        }),
         ('English', {
-            'fields': ('experience_en', 'project_count_en', 'members_en')
+            'fields': ('title_en', 'description_en')
         }),
         ('Azərbaycan', {
-            'fields': ('experience_az', 'project_count_az', 'members_az')
+            'fields': ('title_az', 'description_az')
         }),
         ('Русский', {
-            'fields': ('experience_ru', 'project_count_ru', 'members_ru')
+            'fields': ('title_ru', 'description_ru')
         }),
         ('Legacy', {
-            'fields': ('experience', 'project_count', 'members'),
+            'fields': ('title', 'description'),
             'classes': ('collapse',)
         }),
     )
     
-    def experience_display(self, obj):
-        return obj.experience_en or obj.experience or '-'
-    experience_display.short_description = 'Experience'
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"Benefit {obj.id}"
+    title_display.short_description = 'Title'
     
-    def project_count_display(self, obj):
-        return obj.project_count_en or obj.project_count or '-'
-    project_count_display.short_description = 'Projects'
+    def service_name(self, obj):
+        return obj.service.name_en or obj.service.name or f"Service {obj.service.id}"
+    service_name.short_description = 'Service'
+
+
+@admin.register(ServiceProcess)
+class ServiceProcessAdmin(admin.ModelAdmin):
+    form = ServiceProcessAdminForm
+    list_display = ('id', 'service_name', 'title_display', 'order', 'icon_preview')
+    list_filter = ('service__name_en',)
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title', 'description_en', 'description_az', 'description_ru')
+    list_editable = ('order',)
+    ordering = ('service__id', 'order',)
     
-    def members_display(self, obj):
-        return obj.members_en or obj.members or '-'
-    members_display.short_description = 'Members'
+    fieldsets = (
+        ('Basic', {
+            'fields': ('service', 'order')
+        }),
+        ('Icon', {
+            'fields': (('icon', 'icon_url'),),
+            'description': 'Upload icon or enter URL directly'
+        }),
+        ('English', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'description_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'description_ru')
+        }),
+        ('Legacy', {
+            'fields': ('title', 'description'),
+            'classes': ('collapse',)
+        }),
+    )
     
-    def logos_count(self, obj):
-        return obj.logos.count()
-    logos_count.short_description = 'Logos'
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"Process {obj.id}"
+    title_display.short_description = 'Title'
+    
+    def service_name(self, obj):
+        return obj.service.name_en or obj.service.name or f"Service {obj.service.id}"
+    service_name.short_description = 'Service'
+    
+    def icon_preview(self, obj):
+        if obj.icon_url:
+            return format_html('<img src="{}" style="max-height: 30px;" />', obj.icon_url)
+        return "No icon"
+    icon_preview.short_description = 'Icon'
+
+
+@admin.register(About)
+class AboutAdmin(admin.ModelAdmin):
+    list_display = ('id', 'years_experience', 'ongoing_projects', 'team_members')
+    list_editable = ('years_experience', 'ongoing_projects', 'team_members')
+    
+    fieldsets = (
+        ('Statistics', {
+            'fields': ('years_experience', 'ongoing_projects', 'team_members'),
+            'description': 'Enter numeric values only (e.g., 10 for "10+ years")'
+        }),
+    )
 
 
 # AboutLogo is managed via About inline

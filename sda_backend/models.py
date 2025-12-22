@@ -67,6 +67,41 @@ class SectorInn(TimestampMixin):
         return self.title
 
 
+class PropertySectorProcess(TimestampMixin):
+    """Property Sector Process Steps model"""
+    property_sector = models.ForeignKey(
+        PropertySector,
+        on_delete=models.CASCADE,
+        related_name='process_steps'
+    )
+    
+    # Multilingual title fields
+    title_en = models.TextField(null=True, blank=True)
+    title_az = models.TextField(null=True, blank=True)
+    title_ru = models.TextField(null=True, blank=True)
+    
+    # Multilingual description fields
+    description_en = models.TextField(null=True, blank=True)
+    description_az = models.TextField(null=True, blank=True)
+    description_ru = models.TextField(null=True, blank=True)
+    
+    # Legacy fields
+    title = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        managed = False
+        db_table = 'property_sector_processes'
+        ordering = ['property_sector', 'order']
+        verbose_name = 'Property Sector Process Step'
+        verbose_name_plural = 'Property Sector Process Steps'
+
+    def __str__(self):
+        return self.title_en or self.title or f"Process {self.id}"
+
+
 class Project(TimestampMixin):
     """Projects model"""
     # Multilingual fields
@@ -93,6 +128,12 @@ class Project(TimestampMixin):
         related_name='projects'
     )
     cover_photo_url = models.TextField(null=True, blank=True)
+    services = models.ManyToManyField(
+        'Service',
+        through='ProjectService',
+        related_name='projects',
+        blank=True
+    )
 
     class Meta:
         managed = False
@@ -103,6 +144,53 @@ class Project(TimestampMixin):
 
     def __str__(self):
         return self.title_en or self.title or f"Project {self.id}"
+
+
+class ProjectService(models.Model):
+    """Association table for Project-Service many-to-many relationship"""
+    id = models.AutoField(primary_key=True)  # Add explicit primary key
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    service = models.ForeignKey('Service', on_delete=models.CASCADE)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        managed = False
+        db_table = 'project_services'
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.project} - {self.service}"
+
+
+class ProjectSolution(TimestampMixin):
+    """Project Solutions model"""
+    project = models.ForeignKey(
+        Project, 
+        on_delete=models.CASCADE, 
+        related_name='solutions'
+    )
+    
+    # Multilingual title fields
+    title_en = models.TextField(null=True, blank=True)
+    title_az = models.TextField(null=True, blank=True)
+    title_ru = models.TextField(null=True, blank=True)
+    
+    # Multilingual description fields
+    description_en = models.TextField(null=True, blank=True)
+    description_az = models.TextField(null=True, blank=True)
+    description_ru = models.TextField(null=True, blank=True)
+    
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        managed = False
+        db_table = 'project_solutions'
+        ordering = ['project', 'order']
+        verbose_name = 'Project Solution'
+        verbose_name_plural = 'Project Solutions'
+
+    def __str__(self):
+        return self.title_en or f"Solution {self.id}"
 
 
 class ProjectPhoto(TimestampMixin):
@@ -314,8 +402,22 @@ class Service(TimestampMixin):
 
 class ServiceBenefit(TimestampMixin):
     """Service Benefits model"""
-    title = models.TextField()
+    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='benefits')
+    
+    # Multilingual title fields
+    title_en = models.TextField(null=True, blank=True)
+    title_az = models.TextField(null=True, blank=True)
+    title_ru = models.TextField(null=True, blank=True)
+    
+    # Multilingual description fields
+    description_en = models.TextField(null=True, blank=True)
+    description_az = models.TextField(null=True, blank=True)
+    description_ru = models.TextField(null=True, blank=True)
+    
+    # Legacy fields
+    title = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
+    
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -326,30 +428,82 @@ class ServiceBenefit(TimestampMixin):
         verbose_name_plural = 'Service Benefits'
 
     def __str__(self):
-        return self.title
+        return self.title_en or self.title or f"Benefit {self.id}"
+
+
+class ServiceProcess(TimestampMixin):
+    """Service Process Steps model (What We Do section with icons)"""
+    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='process_steps')
+    
+    # Multilingual title fields
+    title_en = models.TextField(null=True, blank=True)
+    title_az = models.TextField(null=True, blank=True)
+    title_ru = models.TextField(null=True, blank=True)
+    
+    # Multilingual description fields
+    description_en = models.TextField(null=True, blank=True)
+    description_az = models.TextField(null=True, blank=True)
+    description_ru = models.TextField(null=True, blank=True)
+    
+    # Legacy fields
+    title = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    
+    # Icon URL
+    icon_url = models.TextField(null=True, blank=True)
+    
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        managed = False
+        db_table = 'service_processes'
+        ordering = ['order']
+        verbose_name = 'Service Process Step'
+        verbose_name_plural = 'Service Process Steps'
+
+    def __str__(self):
+        return self.title_en or self.title or f"Process {self.id}"
+
+
+class ServiceWorkProcess(TimestampMixin):
+    """Service Work Process Steps model (numbered Process section without icons)"""
+    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='work_process_steps')
+    
+    # Multilingual title fields
+    title_en = models.TextField(null=True, blank=True)
+    title_az = models.TextField(null=True, blank=True)
+    title_ru = models.TextField(null=True, blank=True)
+    
+    # Multilingual description fields
+    description_en = models.TextField(null=True, blank=True)
+    description_az = models.TextField(null=True, blank=True)
+    description_ru = models.TextField(null=True, blank=True)
+    
+    # Legacy fields
+    title = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        managed = False
+        db_table = 'service_work_processes'
+        ordering = ['order']
+        verbose_name = 'Work Process Step'
+        verbose_name_plural = 'Work Process Steps'
+
+    def __str__(self):
+        return self.title_en or self.title or f"Work Process {self.id}"
 
 
 # ==================== About ====================
 
 class About(TimestampMixin):
     """About model"""
-    # Multilingual fields
-    experience_en = models.TextField(null=True, blank=True)
-    experience_az = models.TextField(null=True, blank=True)
-    experience_ru = models.TextField(null=True, blank=True)
-    
-    project_count_en = models.TextField(null=True, blank=True)
-    project_count_az = models.TextField(null=True, blank=True)
-    project_count_ru = models.TextField(null=True, blank=True)
-    
-    members_en = models.TextField(null=True, blank=True)
-    members_az = models.TextField(null=True, blank=True)
-    members_ru = models.TextField(null=True, blank=True)
-    
-    # Legacy fields
-    experience = models.TextField(null=True, blank=True)
-    project_count = models.TextField(null=True, blank=True)
-    members = models.TextField(null=True, blank=True)
+    # Simple numeric fields (no multilingual needed for numbers)
+    years_experience = models.IntegerField(default=0)
+    ongoing_projects = models.IntegerField(default=0)
+    team_members = models.IntegerField(default=0)
 
     class Meta:
         managed = False
@@ -358,31 +512,10 @@ class About(TimestampMixin):
         verbose_name_plural = 'About Sections'
 
     def __str__(self):
-        return f"About {self.id}"
+        return f"About Section (Experience: {self.years_experience}+ years)"
 
 
-class AboutLogo(TimestampMixin):
-    """About Logos model"""
-    about = models.ForeignKey(
-        About, 
-        on_delete=models.CASCADE, 
-        related_name='logos'
-    )
-    image_url = models.TextField()
-    order = models.IntegerField(default=0)
-
-    class Meta:
-        managed = False
-        db_table = 'about_logos'
-        ordering = ['about', 'order']
-        verbose_name = 'About Logo'
-        verbose_name_plural = 'About Logos'
-
-    def __str__(self):
-        return f"Logo for About {self.about.id}"
-
-
-# ==================== Contact ====================
+# ==================== Contact ===================
 
 class ContactMessage(TimestampMixin):
     """Contact Messages model"""
