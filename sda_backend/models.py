@@ -50,7 +50,8 @@ class SectorInn(TimestampMixin):
     property_sector = models.ForeignKey(
         PropertySector, 
         on_delete=models.CASCADE, 
-        related_name='inns'
+        related_name='inns',
+        db_column='property_sector_id'
     )
     title = models.TextField()
     description = models.TextField(null=True, blank=True)
@@ -72,7 +73,8 @@ class PropertySectorProcess(TimestampMixin):
     property_sector = models.ForeignKey(
         PropertySector,
         on_delete=models.CASCADE,
-        related_name='process_steps'
+        related_name='process_steps',
+        db_column='property_sector_id'
     )
     
     # Multilingual title fields
@@ -125,7 +127,8 @@ class Project(TimestampMixin):
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True,
-        related_name='projects'
+        related_name='projects',
+        db_column='property_sector_id'
     )
     cover_photo_url = models.TextField(null=True, blank=True)
     services = models.ManyToManyField(
@@ -149,8 +152,8 @@ class Project(TimestampMixin):
 class ProjectService(models.Model):
     """Association table for Project-Service many-to-many relationship"""
     id = models.AutoField(primary_key=True)  # Add explicit primary key
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    service = models.ForeignKey('Service', on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, db_column='project_id')
+    service = models.ForeignKey('Service', on_delete=models.CASCADE, db_column='service_id')
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -167,7 +170,8 @@ class ProjectSolution(TimestampMixin):
     project = models.ForeignKey(
         Project, 
         on_delete=models.CASCADE, 
-        related_name='solutions'
+        related_name='solutions',
+        db_column='project_id'
     )
     
     # Multilingual title fields
@@ -198,7 +202,8 @@ class ProjectPhoto(TimestampMixin):
     project = models.ForeignKey(
         Project, 
         on_delete=models.CASCADE, 
-        related_name='photos'
+        related_name='photos',
+        db_column='project_id'
     )
     image_url = models.TextField()
     order = models.IntegerField(default=0)
@@ -246,9 +251,10 @@ class News(TimestampMixin):
 class NewsSection(TimestampMixin):
     """News Sections model"""
     news = models.ForeignKey(
-        News, 
-        on_delete=models.CASCADE, 
-        related_name='sections'
+        News,
+        on_delete=models.CASCADE,
+        related_name='sections',
+        db_column='news_id'
     )
     order = models.IntegerField(default=0)
     
@@ -331,9 +337,10 @@ class TeamSection(TimestampMixin):
 class TeamSectionItem(TimestampMixin):
     """Team Section Items model"""
     team_section = models.ForeignKey(
-        TeamSection, 
-        on_delete=models.CASCADE, 
-        related_name='items'
+        TeamSection,
+        on_delete=models.CASCADE,
+        related_name='items',
+        db_column='team_section_id'
     )
     name = models.TextField()
     description = models.TextField(null=True, blank=True)
@@ -581,9 +588,10 @@ class Partner(TimestampMixin):
 class PartnerLogo(TimestampMixin):
     """Partner Logos model"""
     partner = models.ForeignKey(
-        Partner, 
-        on_delete=models.CASCADE, 
-        related_name='logos'
+        Partner,
+        on_delete=models.CASCADE,
+        related_name='logos',
+        db_column='partner_id'
     )
     image_url = models.TextField()
     order = models.IntegerField(default=0)
