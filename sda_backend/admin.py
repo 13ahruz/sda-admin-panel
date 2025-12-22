@@ -242,13 +242,13 @@ class ProjectAdmin(admin.ModelAdmin):
             'description': 'Upload a new cover photo or enter the URL directly'
         }),
         ('English', {
-            'fields': ('title_en', 'description_en')
+            'fields': ('title_en', 'description_en', 'about_project_en')
         }),
         ('Azərbaycan', {
-            'fields': ('title_az', 'description_az')
+            'fields': ('title_az', 'description_az', 'about_project_az')
         }),
         ('Русский', {
-            'fields': ('title_ru', 'description_ru')
+            'fields': ('title_ru', 'description_ru', 'about_project_ru')
         }),
         ('Legacy', {
             'fields': ('title',),
