@@ -18,7 +18,7 @@ services:
       - POSTGRES_SERVER=${POSTGRES_SERVER:-sda-db-1}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - MEDIA_ROOT=/app/uploads
-      - DEBUG=${DEBUG:-False}
+      - DEBUG=True
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-change-me}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
     networks:
