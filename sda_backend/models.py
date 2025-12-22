@@ -402,7 +402,7 @@ class Service(TimestampMixin):
 
 class ServiceBenefit(TimestampMixin):
     """Service Benefits model"""
-    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='benefits')
+    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='benefits', db_column='service_id')
     
     # Multilingual title fields
     title_en = models.TextField(null=True, blank=True)
@@ -433,7 +433,7 @@ class ServiceBenefit(TimestampMixin):
 
 class ServiceProcess(TimestampMixin):
     """Service Process Steps model (What We Do section with icons)"""
-    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='process_steps')
+    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='process_steps', db_column='service_id')
     
     # Multilingual title fields
     title_en = models.TextField(null=True, blank=True)
@@ -467,7 +467,7 @@ class ServiceProcess(TimestampMixin):
 
 class ServiceWorkProcess(TimestampMixin):
     """Service Work Process Steps model (numbered Process section without icons)"""
-    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='work_process_steps')
+    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='work_process_steps', db_column='service_id')
     
     # Multilingual title fields
     title_en = models.TextField(null=True, blank=True)
