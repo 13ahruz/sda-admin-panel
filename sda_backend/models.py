@@ -115,6 +115,10 @@ class Project(TimestampMixin):
     description_az = models.TextField(null=True, blank=True)
     description_ru = models.TextField(null=True, blank=True)
     
+    about_project_en = models.TextField(null=True, blank=True)
+    about_project_az = models.TextField(null=True, blank=True)
+    about_project_ru = models.TextField(null=True, blank=True)
+    
     # Legacy fields
     title = models.TextField(null=True, blank=True)
     
