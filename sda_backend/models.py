@@ -32,6 +32,11 @@ class PropertySector(TimestampMixin):
     title = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     
+    # Featured projects
+    featured_project_1_id = models.IntegerField(null=True, blank=True, db_column='featured_project_1_id')
+    featured_project_2_id = models.IntegerField(null=True, blank=True, db_column='featured_project_2_id')
+    featured_project_3_id = models.IntegerField(null=True, blank=True, db_column='featured_project_3_id')
+    
     order = models.IntegerField(default=0)
 
     class Meta:
