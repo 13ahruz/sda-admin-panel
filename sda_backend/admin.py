@@ -135,7 +135,7 @@ class ServiceWorkProcessInline(admin.TabularInline):
 
 @admin.register(PropertySector)
 class PropertySectorAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title_display', 'order', 'inns_count', 'processes_count', 'projects_count')
+    list_display = ('id', 'title_display', 'order', 'featured_projects_display', 'inns_count', 'processes_count', 'projects_count')
     list_editable = ('order',)
     search_fields = ('title_en', 'title_az', 'title_ru', 'title')
     ordering = ('order',)
@@ -155,6 +155,10 @@ class PropertySectorAdmin(admin.ModelAdmin):
             'fields': ('title', 'description'),
             'classes': ('collapse',)
         }),
+        ('Featured Projects', {
+            'fields': ('featured_project_1_id', 'featured_project_2_id', 'featured_project_3_id'),
+            'description': 'Select up to 3 featured projects for this property sector'
+        }),
         ('Settings', {
             'fields': ('order',)
         }),
@@ -163,6 +167,17 @@ class PropertySectorAdmin(admin.ModelAdmin):
     def title_display(self, obj):
         return obj.title_en or obj.title or f"Sector {obj.id}"
     title_display.short_description = 'Title'
+    
+    def featured_projects_display(self, obj):
+        featured = []
+        if obj.featured_project_1_id:
+            featured.append(f"#{obj.featured_project_1_id}")
+        if obj.featured_project_2_id:
+            featured.append(f"#{obj.featured_project_2_id}")
+        if obj.featured_project_3_id:
+            featured.append(f"#{obj.featured_project_3_id}")
+        return ", ".join(featured) if featured else "-"
+    featured_projects_display.short_description = 'Featured Projects'
     
     def inns_count(self, obj):
         return obj.inns.count()
