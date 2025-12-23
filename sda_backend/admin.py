@@ -12,7 +12,7 @@ from .models import (
     About,
     ContactMessage,
     Partner, PartnerLogo,
-    WorkProcess, Approach
+    WorkProcess
 )
 from .forms import (
     ProjectAdminForm, ProjectPhotoAdminForm, NewsAdminForm, NewsSectionAdminForm,
@@ -118,8 +118,8 @@ class ServiceProcessInline(admin.TabularInline):
     fields = ('order', 'icon', 'icon_url', 'title_en', 'title_az', 'title_ru', 'description_en', 'description_az', 'description_ru')
     readonly_fields = ('icon_url',)
     classes = ('collapse',)
-    verbose_name = 'What We Do Service'
-    verbose_name_plural = 'What We Do Services'
+    verbose_name = 'Service What We Do Item'
+    verbose_name_plural = 'Service What We Do Items'
 
 
 class ServiceWorkProcessInline(admin.TabularInline):
@@ -127,8 +127,8 @@ class ServiceWorkProcessInline(admin.TabularInline):
     extra = 1
     fields = ('order', 'title_en', 'title_az', 'title_ru', 'description_en', 'description_az', 'description_ru')
     classes = ('collapse',)
-    verbose_name = 'Work Process Step'
-    verbose_name_plural = 'Work Process Steps'
+    verbose_name = 'Service Process Step'
+    verbose_name_plural = 'Service Process Steps'
 
 
 # ==================== Model Admins ====================
@@ -269,6 +269,38 @@ class ProjectAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" style="max-height: 50px;" />', obj.cover_photo_url)
         return "No cover"
     cover_preview.short_description = 'Cover'
+
+
+@admin.register(ProjectSolution)
+class ProjectSolutionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'project_name', 'title_display', 'order')
+    list_filter = ('project__title_en',)
+    search_fields = ('title_en', 'title_az', 'title_ru', 'description_en', 'description_az', 'description_ru')
+    list_editable = ('order',)
+    ordering = ('project__id', 'order',)
+    
+    fieldsets = (
+        ('Basic', {
+            'fields': ('project', 'order')
+        }),
+        ('English', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'description_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'description_ru')
+        }),
+    )
+    
+    def title_display(self, obj):
+        return obj.title_en or f"Solution {obj.id}"
+    title_display.short_description = 'Title'
+    
+    def project_name(self, obj):
+        return obj.project.title_en or obj.project.title or f"Project {obj.project.id}"
+    project_name.short_description = 'Project'
 
 
 # ProjectPhoto is managed via Project inline
@@ -431,6 +463,10 @@ class ServiceAdmin(admin.ModelAdmin):
             'fields': (('image', 'image_url'), ('icon', 'icon_url')),
             'description': 'Upload new images or enter URLs directly'
         }),
+        ('Featured Projects', {
+            'fields': ('featured_project_1', 'featured_project_2'),
+            'description': 'Select two projects to feature on this service page'
+        }),
         ('English', {
             'fields': ('name_en', 'description_en', 'hero_text_en', 'meta_title_en', 'meta_description_en')
         }),
@@ -548,6 +584,42 @@ class ServiceProcessAdmin(admin.ModelAdmin):
     icon_preview.short_description = 'Icon'
 
 
+@admin.register(ServiceWorkProcess)
+class ServiceWorkProcessAdmin(admin.ModelAdmin):
+    list_display = ('id', 'service_name', 'title_display', 'order')
+    list_filter = ('service__name_en',)
+    search_fields = ('title_en', 'title_az', 'title_ru', 'title', 'description_en', 'description_az', 'description_ru')
+    list_editable = ('order',)
+    ordering = ('service__id', 'order',)
+    
+    fieldsets = (
+        ('Basic', {
+            'fields': ('service', 'order')
+        }),
+        ('English', {
+            'fields': ('title_en', 'description_en')
+        }),
+        ('Azərbaycan', {
+            'fields': ('title_az', 'description_az')
+        }),
+        ('Русский', {
+            'fields': ('title_ru', 'description_ru')
+        }),
+        ('Legacy', {
+            'fields': ('title', 'description'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def title_display(self, obj):
+        return obj.title_en or obj.title or f"Process {obj.id}"
+    title_display.short_description = 'Title'
+    
+    def service_name(self, obj):
+        return obj.service.name_en or obj.service.name or f"Service {obj.service.id}"
+    service_name.short_description = 'Service'
+
+
 @admin.register(About)
 class AboutAdmin(admin.ModelAdmin):
     list_display = ('id', 'years_experience', 'ongoing_projects', 'team_members')
@@ -640,27 +712,17 @@ class ContactMessageAdmin(admin.ModelAdmin):
 @admin.register(Partner)
 class PartnerAdmin(admin.ModelAdmin):
     list_display = ('id', 'title_display', 'logos_count')
-    search_fields = ('title_en', 'title_az', 'title_ru', 'title')
+    search_fields = ('title',)
     inlines = [PartnerLogoInline]
     
     fieldsets = (
-        ('English', {
-            'fields': ('title_en', 'button_text_en')
-        }),
-        ('Azərbaycan', {
-            'fields': ('title_az', 'button_text_az')
-        }),
-        ('Русский', {
-            'fields': ('title_ru', 'button_text_ru')
-        }),
-        ('Legacy', {
-            'fields': ('title', 'button_text'),
-            'classes': ('collapse',)
+        (None, {
+            'fields': ('title',)
         }),
     )
     
     def title_display(self, obj):
-        return obj.title_en or obj.title or f"Partner {obj.id}"
+        return obj.title or f"Partner {obj.id}"
     title_display.short_description = 'Title'
     
     def logos_count(self, obj):
@@ -720,37 +782,6 @@ class WorkProcessAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
         return "No image"
     image_preview.short_description = 'Image'
-
-
-@admin.register(Approach)
-class ApproachAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title_display', 'order')
-    search_fields = ('title_en', 'title_az', 'title_ru', 'title')
-    list_editable = ('order',)
-    ordering = ('order',)
-    
-    fieldsets = (
-        ('English', {
-            'fields': ('title_en', 'description_en')
-        }),
-        ('Azərbaycan', {
-            'fields': ('title_az', 'description_az')
-        }),
-        ('Русский', {
-            'fields': ('title_ru', 'description_ru')
-        }),
-        ('Legacy', {
-            'fields': ('title', 'description'),
-            'classes': ('collapse',)
-        }),
-        ('Settings', {
-            'fields': ('order',)
-        }),
-    )
-    
-    def title_display(self, obj):
-        return obj.title_en or obj.title or f"Approach {obj.id}"
-    title_display.short_description = 'Title'
 
 
 # Customize admin site

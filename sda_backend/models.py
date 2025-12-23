@@ -194,8 +194,8 @@ class ProjectSolution(TimestampMixin):
         managed = False
         db_table = 'project_solutions'
         ordering = ['project', 'order']
-        verbose_name = 'Project Solution'
-        verbose_name_plural = 'Project Solutions'
+        verbose_name = 'Project Delivered Solution'
+        verbose_name_plural = 'Project Delivered Solutions'
 
     def __str__(self):
         return self.title_en or f"Solution {self.id}"
@@ -399,6 +399,24 @@ class Service(TimestampMixin):
     image_url = models.TextField(null=True, blank=True)
     order = models.IntegerField(default=0)
     icon_url = models.TextField(null=True, blank=True)
+    
+    # Featured projects
+    featured_project_1 = models.ForeignKey(
+        'Project',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='featured_in_service_1',
+        db_column='featured_project_1_id'
+    )
+    featured_project_2 = models.ForeignKey(
+        'Project',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='featured_in_service_2',
+        db_column='featured_project_2_id'
+    )
 
     class Meta:
         managed = False
@@ -469,8 +487,8 @@ class ServiceProcess(TimestampMixin):
         managed = False
         db_table = 'service_processes'
         ordering = ['order']
-        verbose_name = 'Service Process Step'
-        verbose_name_plural = 'Service Process Steps'
+        verbose_name = 'Service What We Do Item'
+        verbose_name_plural = 'Service What We Do Items'
 
     def __str__(self):
         return self.title_en or self.title or f"Process {self.id}"
@@ -500,8 +518,8 @@ class ServiceWorkProcess(TimestampMixin):
         managed = False
         db_table = 'service_work_processes'
         ordering = ['order']
-        verbose_name = 'Work Process Step'
-        verbose_name_plural = 'Work Process Steps'
+        verbose_name = 'Service Process Step'
+        verbose_name_plural = 'Service Process Steps'
 
     def __str__(self):
         return self.title_en or self.title or f"Work Process {self.id}"
@@ -566,18 +584,7 @@ class ContactMessage(TimestampMixin):
 
 class Partner(TimestampMixin):
     """Partners model"""
-    # Multilingual fields
-    title_en = models.TextField(null=True, blank=True)
-    title_az = models.TextField(null=True, blank=True)
-    title_ru = models.TextField(null=True, blank=True)
-    
-    button_text_en = models.TextField(null=True, blank=True)
-    button_text_az = models.TextField(null=True, blank=True)
-    button_text_ru = models.TextField(null=True, blank=True)
-    
-    # Legacy fields
     title = models.TextField(null=True, blank=True)
-    button_text = models.TextField(null=True, blank=True)
 
     class Meta:
         managed = False
@@ -586,7 +593,7 @@ class Partner(TimestampMixin):
         verbose_name_plural = 'Partners'
 
     def __str__(self):
-        return self.title_en or self.title or f"Partner {self.id}"
+        return self.title or f"Partner {self.id}"
 
 
 class PartnerLogo(TimestampMixin):
