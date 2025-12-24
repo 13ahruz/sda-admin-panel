@@ -32,10 +32,31 @@ class PropertySector(TimestampMixin):
     title = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     
-    # Featured projects
-    featured_project_1_id = models.IntegerField(null=True, blank=True, db_column='featured_project_1_id')
-    featured_project_2_id = models.IntegerField(null=True, blank=True, db_column='featured_project_2_id')
-    featured_project_3_id = models.IntegerField(null=True, blank=True, db_column='featured_project_3_id')
+    # Featured projects - ForeignKey for dropdown selection
+    featured_project_1 = models.ForeignKey(
+        'Project',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='featured_in_sector_1',
+        db_column='featured_project_1_id'
+    )
+    featured_project_2 = models.ForeignKey(
+        'Project',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='featured_in_sector_2',
+        db_column='featured_project_2_id'
+    )
+    featured_project_3 = models.ForeignKey(
+        'Project',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='featured_in_sector_3',
+        db_column='featured_project_3_id'
+    )
     
     order = models.IntegerField(default=0)
 
@@ -234,6 +255,11 @@ class News(TimestampMixin):
     """News model"""
     photo_url = models.TextField(null=True, blank=True)
     tags = ArrayField(models.TextField(), default=list, blank=True)
+    
+    # Multilingual tag fields
+    tag_en = models.TextField(null=True, blank=True)
+    tag_az = models.TextField(null=True, blank=True)
+    tag_ru = models.TextField(null=True, blank=True)
     
     # Multilingual fields
     title = models.TextField()

@@ -9,7 +9,7 @@ import os
 import requests
 from .models import (
     Project, ProjectPhoto, News, NewsSection, TeamMember,
-    Service, ServiceProcess, About, Partner, PartnerLogo, WorkProcess
+    Service, ServiceProcess, About, Partner, PartnerLogo, WorkProcess, PropertySector
 )
 
 
@@ -289,13 +289,93 @@ class ServiceProcessAdminForm(forms.ModelForm, ImageUploadMixin):
     def save(self, commit=True):
         instance = super().save(commit=False)
         
-        # Handle icon upload
-        if self.cleaned_data.get('icon'):
-            instance.icon_url = self.save_uploaded_file(
-                self.cleaned_data['icon'],
-                'services/process-icons'
-            )
         
+        if commit:
+            instance.save()
+        return instance
+
+
+class PropertySectorAdminForm(forms.ModelForm):
+    """Custom form for PropertySector to allow selecting projects by slug"""
+    featured_project_1_slug = forms.CharField(
+        required=False,
+        label='Featured Project 1 (Slug)',
+        help_text='Enter project slug (e.g., "project-name"). Leave blank to use ID field instead.',
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., project-name'})
+    )
+    featured_project_2_slug = forms.CharField(
+        required=False,
+        label='Featured Project 2 (Slug)',
+        help_text='Enter project slug. Leave blank to use ID field instead.',
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., project-name'})
+    )
+    featured_project_3_slug = forms.CharField(
+        required=False,
+        label='Featured Project 3 (Slug)',
+        help_text='Enter project slug. Leave blank to use ID field instead.',
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., project-name'})
+    )
+    
+    class Meta:
+        model = PropertySector
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Populate slug fields from existing IDs if editing
+        if self.instance.pk:
+            if self.instance.featured_project_1_id:
+                try:
+                    project = Project.objects.get(id=self.instance.featured_project_1_id)
+                    self.fields['featured_project_1_slug'].initial = project.slug
+                except Project.DoesNotExist:
+                    pass
+            
+            if self.instance.featured_project_2_id:
+                try:
+                    project = Project.objects.get(id=self.instance.featured_project_2_id)
+                    self.fields['featured_project_2_slug'].initial = project.slug
+                except Project.DoesNotExist:
+                    pass
+            
+            if self.instance.featured_project_3_id:
+                try:
+                    project = Project.objects.get(id=self.instance.featured_project_3_id)
+                    self.fields['featured_project_3_slug'].initial = project.slug
+                except Project.DoesNotExist:
+                    pass
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Convert slugs to IDs
+        for i in range(1, 4):
+            slug_field = f'featured_project_{i}_slug'
+            id_field = f'featured_project_{i}_id'
+            
+            slug = cleaned_data.get(slug_field)
+            project_id = cleaned_data.get(id_field)
+            
+            # If slug is provided, use it to find the project ID
+            if slug:
+                try:
+                    project = Project.objects.get(slug=slug)
+                    cleaned_data[id_field] = project.id
+                except Project.DoesNotExist:
+                    self.add_error(slug_field, f'Project with slug "{slug}" not found.')
+            # If no slug but ID is provided, keep the ID
+            elif project_id:
+                cleaned_data[id_field] = project_id
+            else:
+                cleaned_data[id_field] = None
+        
+        return cleaned_data
+    
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        # The IDs are already set in clean()
         if commit:
             instance.save()
         return instance

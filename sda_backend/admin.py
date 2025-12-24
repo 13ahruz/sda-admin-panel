@@ -156,7 +156,7 @@ class PropertySectorAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
         ('Featured Projects', {
-            'fields': ('featured_project_1_id', 'featured_project_2_id', 'featured_project_3_id'),
+            'fields': ('featured_project_1', 'featured_project_2', 'featured_project_3'),
             'description': 'Select up to 3 featured projects for this property sector'
         }),
         ('Settings', {
@@ -170,12 +170,9 @@ class PropertySectorAdmin(admin.ModelAdmin):
     
     def featured_projects_display(self, obj):
         featured = []
-        if obj.featured_project_1_id:
-            featured.append(f"#{obj.featured_project_1_id}")
-        if obj.featured_project_2_id:
-            featured.append(f"#{obj.featured_project_2_id}")
-        if obj.featured_project_3_id:
-            featured.append(f"#{obj.featured_project_3_id}")
+        for project in [obj.featured_project_1, obj.featured_project_2, obj.featured_project_3]:
+            if project:
+                featured.append(f"{project.slug or project.title_en or f'#{project.id}'}")
         return ", ".join(featured) if featured else "-"
     featured_projects_display.short_description = 'Featured Projects'
     
@@ -347,16 +344,16 @@ class NewsAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Photo & Tags', {
             'fields': ('photo', 'photo_url', 'tags'),
-            'description': 'Upload a new photo or enter the URL directly'
+            'description': 'Upload a new photo or enter the URL directly. Tags array is legacy.'
         }),
         ('English', {
-            'fields': ('title_en', 'summary_en')
+            'fields': ('title_en', 'summary_en', 'tag_en')
         }),
         ('Azərbaycan', {
-            'fields': ('title_az', 'summary_az')
+            'fields': ('title_az', 'summary_az', 'tag_az')
         }),
         ('Русский', {
-            'fields': ('title_ru', 'summary_ru')
+            'fields': ('title_ru', 'summary_ru', 'tag_ru')
         }),
         ('Legacy', {
             'fields': ('title', 'summary'),
