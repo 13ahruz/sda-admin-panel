@@ -71,29 +71,6 @@ class PropertySector(TimestampMixin):
         return self.title_en or self.title or f"Sector {self.id}"
 
 
-class SectorInn(TimestampMixin):
-    """Sector Inns (features) model"""
-    property_sector = models.ForeignKey(
-        PropertySector, 
-        on_delete=models.CASCADE, 
-        related_name='inns',
-        db_column='property_sector_id'
-    )
-    title = models.TextField()
-    description = models.TextField(null=True, blank=True)
-    order = models.IntegerField(default=0)
-
-    class Meta:
-        managed = False
-        db_table = 'sector_inns'
-        ordering = ['property_sector', 'order']
-        verbose_name = 'Sector Inn'
-        verbose_name_plural = 'Sector Inns'
-
-    def __str__(self):
-        return self.title
-
-
 class PropertySectorProcess(TimestampMixin):
     """Property Sector Process Steps model"""
     property_sector = models.ForeignKey(
@@ -123,8 +100,8 @@ class PropertySectorProcess(TimestampMixin):
         managed = False
         db_table = 'property_sector_processes'
         ordering = ['property_sector', 'order']
-        verbose_name = 'Property Sector Process Step'
-        verbose_name_plural = 'Property Sector Process Steps'
+        verbose_name = 'Property Sectors Service'
+        verbose_name_plural = 'Property Sectors Services'
 
     def __str__(self):
         return self.title_en or self.title or f"Process {self.id}"
@@ -429,7 +406,6 @@ class Service(TimestampMixin):
     slug = models.CharField(max_length=255, unique=True)
     image_url = models.TextField(null=True, blank=True)
     order = models.IntegerField(default=0)
-    icon_url = models.TextField(null=True, blank=True)
     
     # Featured projects
     featured_project_1 = models.ForeignKey(

@@ -181,7 +181,6 @@ class TeamMemberAdminForm(forms.ModelForm, ImageUploadMixin):
 
 class ServiceAdminForm(forms.ModelForm, ImageUploadMixin):
     image = forms.ImageField(required=False, label='Image Upload')
-    icon = forms.ImageField(required=False, label='Icon Upload')
     
     class Meta:
         model = Service
@@ -189,11 +188,9 @@ class ServiceAdminForm(forms.ModelForm, ImageUploadMixin):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make URL fields optional
+        # Make URL field optional
         if 'image_url' in self.fields:
             self.fields['image_url'].required = False
-        if 'icon_url' in self.fields:
-            self.fields['icon_url'].required = False
     
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -203,13 +200,6 @@ class ServiceAdminForm(forms.ModelForm, ImageUploadMixin):
             instance.image_url = self.save_uploaded_file(
                 self.cleaned_data['image'],
                 'services'
-            )
-        
-        # Handle icon upload
-        if self.cleaned_data.get('icon'):
-            instance.icon_url = self.save_uploaded_file(
-                self.cleaned_data['icon'],
-                'services/icons'
             )
         
         if commit:

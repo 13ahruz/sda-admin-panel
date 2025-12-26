@@ -5,19 +5,18 @@ Provides comprehensive admin interface with inline editing, filters, and search.
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    Project, ProjectPhoto, ProjectService, ProjectSolution, PropertySector, SectorInn, PropertySectorProcess,
+    Project, ProjectPhoto, ProjectService, ProjectSolution, PropertySector, PropertySectorProcess,
     News, NewsSection,
-    TeamMember, TeamSection, TeamSectionItem,
+    TeamMember,
     Service, ServiceBenefit, ServiceProcess, ServiceWorkProcess,
     About,
     ContactMessage,
-    Partner, PartnerLogo,
-    WorkProcess
+    Partner, PartnerLogo
 )
 from .forms import (
     ProjectAdminForm, ProjectPhotoAdminForm, NewsAdminForm, NewsSectionAdminForm,
     TeamMemberAdminForm, ServiceAdminForm, PartnerLogoAdminForm,
-    WorkProcessAdminForm, ServiceProcessAdminForm
+    ServiceProcessAdminForm
 )
 
 
@@ -54,12 +53,6 @@ class ProjectSolutionInline(admin.TabularInline):
     verbose_name_plural = 'Delivered Solutions'
 
 
-class SectorInnInline(admin.TabularInline):
-    model = SectorInn
-    extra = 1
-    fields = ('title', 'description', 'order')
-
-
 class PropertySectorProcessInline(admin.TabularInline):
     model = PropertySectorProcess
     extra = 1
@@ -80,12 +73,6 @@ class NewsSectionInline(admin.StackedInline):
         'image',
         'image_url'
     )
-
-
-class TeamSectionItemInline(admin.TabularInline):
-    model = TeamSectionItem
-    extra = 1
-    fields = ('name', 'description', 'photo_url', 'button_text', 'order')
 
 
 class PartnerLogoInline(admin.TabularInline):
@@ -135,11 +122,11 @@ class ServiceWorkProcessInline(admin.TabularInline):
 
 @admin.register(PropertySector)
 class PropertySectorAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title_display', 'order', 'featured_projects_display', 'inns_count', 'processes_count', 'projects_count')
+    list_display = ('id', 'title_display', 'order', 'featured_projects_display', 'processes_count', 'projects_count')
     list_editable = ('order',)
     search_fields = ('title_en', 'title_az', 'title_ru', 'title')
     ordering = ('order',)
-    inlines = [SectorInnInline, PropertySectorProcessInline]
+    inlines = [PropertySectorProcessInline]
     
     fieldsets = (
         ('English', {
@@ -175,10 +162,6 @@ class PropertySectorAdmin(admin.ModelAdmin):
                 featured.append(f"{project.slug or project.title_en or f'#{project.id}'}")
         return ", ".join(featured) if featured else "-"
     featured_projects_display.short_description = 'Featured Projects'
-    
-    def inns_count(self, obj):
-        return obj.inns.count()
-    inns_count.short_description = 'Inns'
     
     def processes_count(self, obj):
         return obj.process_steps.count() if hasattr(obj, 'process_steps') else 0
@@ -438,30 +421,10 @@ class TeamMemberAdmin(admin.ModelAdmin):
     photo_preview.short_description = 'Photo'
 
 
-@admin.register(TeamSection)
-class TeamSectionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'button_text', 'items_count')
-    search_fields = ('title',)
-    inlines = [TeamSectionItemInline]
-    
-    def items_count(self, obj):
-        return obj.items.count()
-    items_count.short_description = 'Items'
-
-
-# TeamSectionItem is managed via TeamSection inline
-# @admin.register(TeamSectionItem)
-# class TeamSectionItemAdmin(admin.ModelAdmin):
-#     list_display = ('id', 'team_section', 'name', 'order')
-#     list_filter = ('team_section',)
-#     list_editable = ('order',)
-#     ordering = ('team_section', 'order')
-
-
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     form = ServiceAdminForm
-    list_display = ('id', 'name_display', 'slug', 'order', 'benefits_count', 'processes_count', 'icon_preview')
+    list_display = ('id', 'name_display', 'slug', 'order', 'benefits_count', 'processes_count')
     search_fields = ('name_en', 'name_az', 'name_ru', 'name', 'slug')
     list_editable = ('order',)
     ordering = ('order',)
@@ -472,8 +435,8 @@ class ServiceAdmin(admin.ModelAdmin):
             'fields': ('slug', 'order')
         }),
         ('Images', {
-            'fields': (('image', 'image_url'), ('icon', 'icon_url')),
-            'description': 'Upload new images or enter URLs directly'
+            'fields': ('image', 'image_url'),
+            'description': 'Upload a new image or enter URL directly'
         }),
         ('Featured Projects', {
             'fields': ('featured_project_1', 'featured_project_2'),
@@ -505,12 +468,6 @@ class ServiceAdmin(admin.ModelAdmin):
     def processes_count(self, obj):
         return obj.process_steps.count() if hasattr(obj, 'process_steps') else 0
     processes_count.short_description = 'Process Steps'
-    
-    def icon_preview(self, obj):
-        if obj.icon_url:
-            return format_html('<img src="{}" style="max-height: 30px;" />', obj.icon_url)
-        return "No icon"
-    icon_preview.short_description = 'Icon'
 
 
 @admin.register(ServiceBenefit)
@@ -757,46 +714,49 @@ class PartnerAdmin(admin.ModelAdmin):
 #     logo_preview.short_description = 'Preview'
 
 
-@admin.register(WorkProcess)
-class WorkProcessAdmin(admin.ModelAdmin):
-    form = WorkProcessAdminForm
-    list_display = ('id', 'title_display', 'order', 'image_preview')
-    search_fields = ('title_en', 'title_az', 'title_ru', 'title')
-    list_editable = ('order',)
-    ordering = ('order',)
-    
-    fieldsets = (
-        ('English', {
-            'fields': ('title_en', 'description_en')
-        }),
-        ('Azərbaycan', {
-            'fields': ('title_az', 'description_az')
-        }),
-        ('Русский', {
-            'fields': ('title_ru', 'description_ru')
-        }),
-        ('Legacy', {
-            'fields': ('title', 'description'),
-            'classes': ('collapse',)
-        }),
-        ('Settings', {
-            'fields': ('order', 'image', 'image_url'),
-            'description': 'Upload a new image or enter the URL directly'
-        }),
-    )
-    
-    def title_display(self, obj):
-        return obj.title_en or obj.title or f"Process {obj.id}"
-    title_display.short_description = 'Title'
-    
-    def image_preview(self, obj):
-        if obj.image_url:
-            return format_html('<img src="{}" style="max-height: 50px;" />', obj.image_url)
-        return "No image"
-    image_preview.short_description = 'Image'
-
-
 # Customize admin site
 admin.site.site_header = "SDA Consulting Admin Panel"
 admin.site.site_title = "SDA Admin"
 admin.site.index_title = "Welcome to SDA Consulting Administration"
+
+# Customize admin index to show Contact Messages first
+def get_app_list(self, request, app_label=None):
+    """
+    Return a sorted list of all the installed apps that have been
+    registered in this site.
+    """
+    app_dict = self._build_app_dict(request, app_label)
+    
+    # Sort the apps alphabetically.
+    app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
+    
+    # For each app, sort the models by priority
+    for app in app_list:
+        if app['app_label'] == 'sda_backend':
+            # Define priority order for models
+            priority_order = {
+                'Contact Messages': 1,
+                'About Sections': 2,
+                'Partners': 3,
+                'Team Members': 4,
+                'Services': 5,
+                'Service What We Do Items': 6,
+                'Service Benefits': 7,
+                'Service Process Steps': 8,
+                'Projects': 9,
+                'Project Delivered Solutions': 10,
+                'Property Sectors': 11,
+                'Property Sectors Services': 12,
+                'News Articles': 13,
+            }
+            
+            # Sort models: priority items first, then alphabetically
+            app['models'].sort(key=lambda x: (
+                priority_order.get(x['name'], 999),
+                x['name'].lower()
+            ))
+    
+    return app_list
+
+# Override the get_app_list method
+admin.AdminSite.get_app_list = get_app_list
