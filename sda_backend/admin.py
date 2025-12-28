@@ -25,7 +25,8 @@ from .forms import (
 class ProjectPhotoInline(admin.TabularInline):
     model = ProjectPhoto
     form = ProjectPhotoAdminForm
-    extra = 1
+    extra = 0
+    max_num = 2
     fields = ('image', 'image_url', 'order', 'image_preview')
     readonly_fields = ('image_preview',)
     
@@ -58,8 +59,8 @@ class PropertySectorProcessInline(admin.TabularInline):
     extra = 1
     fields = ('order', 'title_en', 'title_az', 'title_ru', 'description_en', 'description_az', 'description_ru')
     classes = ('collapse',)
-    verbose_name = 'Process Step'
-    verbose_name_plural = 'Process Steps'
+    verbose_name = 'Service'
+    verbose_name_plural = 'Services'
 
 
 class NewsSectionInline(admin.StackedInline):
@@ -221,8 +222,8 @@ class PropertySectorProcessAdmin(admin.ModelAdmin):
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectAdminForm
-    list_display = ('id', 'title_display', 'property_sector', 'client', 'year', 'tag', 'photos_count', 'cover_preview')
-    list_filter = ('property_sector', 'year', 'tag')
+    list_display = ('id', 'title_display', 'property_sector', 'client', 'year', 'photos_count', 'cover_preview')
+    list_filter = ('property_sector', 'year')
     search_fields = ('title_en', 'title_az', 'title_ru', 'title', 'client', 'slug')
     list_editable = ('property_sector',)
     ordering = ('-year', '-created_at')
@@ -230,7 +231,7 @@ class ProjectAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Info', {
-            'fields': ('slug', 'property_sector', 'client', 'year', 'tag')
+            'fields': ('slug', 'property_sector', 'client', 'year', 'year_end')
         }),
         ('Cover Photo', {
             'fields': ('cover_photo', 'cover_photo_url'),
@@ -443,16 +444,16 @@ class ServiceAdmin(admin.ModelAdmin):
             'description': 'Select two projects to feature on this service page'
         }),
         ('English', {
-            'fields': ('name_en', 'description_en', 'hero_text_en', 'meta_title_en', 'meta_description_en')
+            'fields': ('name_en', 'description_en', 'meta_title_en', 'meta_description_en')
         }),
         ('Azərbaycan', {
-            'fields': ('name_az', 'description_az', 'hero_text_az', 'meta_title_az', 'meta_description_az')
+            'fields': ('name_az', 'description_az', 'meta_title_az', 'meta_description_az')
         }),
         ('Русский', {
-            'fields': ('name_ru', 'description_ru', 'hero_text_ru', 'meta_title_ru', 'meta_description_ru')
+            'fields': ('name_ru', 'description_ru', 'meta_title_ru', 'meta_description_ru')
         }),
         ('Legacy', {
-            'fields': ('name', 'description', 'hero_text', 'meta_title', 'meta_description'),
+            'fields': ('name', 'description', 'meta_title', 'meta_description'),
             'classes': ('collapse',)
         }),
     )

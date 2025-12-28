@@ -126,9 +126,9 @@ class Project(TimestampMixin):
     title = models.TextField(null=True, blank=True)
     
     slug = models.TextField(unique=True, null=True, blank=True)
-    tag = models.TextField(null=True, blank=True)
     client = models.TextField(null=True, blank=True)
     year = models.IntegerField(null=True, blank=True)
+    year_end = models.IntegerField(null=True, blank=True)
     property_sector = models.ForeignKey(
         PropertySector, 
         on_delete=models.SET_NULL, 
@@ -384,10 +384,6 @@ class Service(TimestampMixin):
     description_az = models.TextField(null=True, blank=True)
     description_ru = models.TextField(null=True, blank=True)
     
-    hero_text_en = models.TextField(null=True, blank=True)
-    hero_text_az = models.TextField(null=True, blank=True)
-    hero_text_ru = models.TextField(null=True, blank=True)
-    
     meta_title_en = models.TextField(null=True, blank=True)
     meta_title_az = models.TextField(null=True, blank=True)
     meta_title_ru = models.TextField(null=True, blank=True)
@@ -399,7 +395,6 @@ class Service(TimestampMixin):
     # Legacy fields
     name = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    hero_text = models.TextField(null=True, blank=True)
     meta_title = models.TextField(null=True, blank=True)
     meta_description = models.TextField(null=True, blank=True)
     
