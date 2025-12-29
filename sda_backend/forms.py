@@ -279,6 +279,12 @@ class ServiceProcessAdminForm(forms.ModelForm, ImageUploadMixin):
     def save(self, commit=True):
         instance = super().save(commit=False)
         
+        # Handle icon upload
+        icon_file = self.cleaned_data.get('icon')
+        if icon_file:
+            icon_url = self.save_uploaded_file(icon_file, 'services/icons')
+            if icon_url:
+                instance.icon_url = icon_url
         
         if commit:
             instance.save()
