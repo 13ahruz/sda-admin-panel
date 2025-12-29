@@ -93,6 +93,10 @@ class ProjectPhotoAdminForm(forms.ModelForm, ImageUploadMixin):
         if commit:
             instance.save()
         return instance
+        
+        if commit:
+            instance.save()
+        return instance
 
 
 class NewsAdminForm(forms.ModelForm, ImageUploadMixin):
