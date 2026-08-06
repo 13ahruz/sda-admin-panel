@@ -2,8 +2,11 @@ version: '3.8'
 
 services:
   admin-panel:
+    env_file:
+      - .env
     build: .
     container_name: sda-admin-panel
+    restart: unless-stopped
     command: python manage.py runserver 0.0.0.0:8001
     volumes:
       - .:/app
