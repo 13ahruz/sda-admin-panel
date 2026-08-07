@@ -131,13 +131,22 @@ class PropertySectorAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('English', {
-            'fields': ('title_en', 'description_en')
+            'fields': ('title_en', 'description_en', 'hero_title_en'),
+            'description': '"Page heading" is the large heading at the top of this '
+                           'property page. Leave it empty to fall back to the '
+                           'default wording built into the site.'
         }),
         ('Azərbaycan', {
-            'fields': ('title_az', 'description_az')
+            'fields': ('title_az', 'description_az', 'hero_title_az'),
+            'description': '"Səhifə başlığı" bu əmlak səhifəsinin yuxarısındakı '
+                           'böyük başlıqdır. Boş buraxsanız, saytdakı standart '
+                           'mətn işlədiləcək.'
         }),
         ('Русский', {
-            'fields': ('title_ru', 'description_ru')
+            'fields': ('title_ru', 'description_ru', 'hero_title_ru'),
+            'description': '«Заголовок страницы» — крупный заголовок вверху этой '
+                           'страницы. Оставьте пустым, чтобы использовать текст '
+                           'по умолчанию.'
         }),
         ('Legacy', {
             'fields': ('title', 'description'),

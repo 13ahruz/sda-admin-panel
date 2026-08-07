@@ -27,11 +27,22 @@ class PropertySector(TimestampMixin):
     description_en = models.TextField(null=True, blank=True)
     description_az = models.TextField(null=True, blank=True)
     description_ru = models.TextField(null=True, blank=True)
-    
+
+    # Heading at the top of the property sector page
+    hero_title_en = models.TextField(
+        null=True, blank=True, verbose_name='Page heading'
+    )
+    hero_title_az = models.TextField(
+        null=True, blank=True, verbose_name='Səhifə başlığı'
+    )
+    hero_title_ru = models.TextField(
+        null=True, blank=True, verbose_name='Заголовок страницы'
+    )
+
     # Legacy fields
     title = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    
+
     # Featured projects - ForeignKey for dropdown selection
     featured_project_1 = models.ForeignKey(
         'Project',
