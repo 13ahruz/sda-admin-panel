@@ -121,7 +121,18 @@ class Project(TimestampMixin):
     about_project_en = models.TextField(null=True, blank=True)
     about_project_az = models.TextField(null=True, blank=True)
     about_project_ru = models.TextField(null=True, blank=True)
-    
+
+    # Heading of the "Delivered solutions" section on the project page
+    solutions_title_en = models.TextField(
+        null=True, blank=True, verbose_name='Delivered solutions - heading'
+    )
+    solutions_title_az = models.TextField(
+        null=True, blank=True, verbose_name='Təqdim edilən həllər - başlıq'
+    )
+    solutions_title_ru = models.TextField(
+        null=True, blank=True, verbose_name='Реализованные решения - заголовок'
+    )
+
     # Legacy fields
     title = models.TextField(null=True, blank=True)
     

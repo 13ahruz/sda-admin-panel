@@ -238,13 +238,25 @@ class ProjectAdmin(admin.ModelAdmin):
             'description': 'Upload a new cover photo or enter the URL directly'
         }),
         ('English', {
-            'fields': ('title_en', 'description_en', 'about_project_en')
+            'fields': ('title_en', 'description_en', 'about_project_en',
+                       'solutions_title_en'),
+            'description': '"Delivered solutions - heading" is shown above the '
+                           'delivered solutions on the project page. Leave it empty '
+                           'to fall back to the default wording built into the site.'
         }),
         ('Azərbaycan', {
-            'fields': ('title_az', 'description_az', 'about_project_az')
+            'fields': ('title_az', 'description_az', 'about_project_az',
+                       'solutions_title_az'),
+            'description': '"Təqdim edilən həllər - başlıq" layihə səhifəsində '
+                           'həllərin üstündə göstərilir. Boş buraxsanız, saytdakı '
+                           'standart mətn işlədiləcək.'
         }),
         ('Русский', {
-            'fields': ('title_ru', 'description_ru', 'about_project_ru')
+            'fields': ('title_ru', 'description_ru', 'about_project_ru',
+                       'solutions_title_ru'),
+            'description': '«Реализованные решения — заголовок» отображается над '
+                           'решениями на странице проекта. Оставьте пустым, чтобы '
+                           'использовать текст по умолчанию.'
         }),
         ('Legacy', {
             'fields': ('title',),
