@@ -391,13 +391,24 @@ class Service(TimestampMixin):
     meta_description_en = models.TextField(null=True, blank=True)
     meta_description_az = models.TextField(null=True, blank=True)
     meta_description_ru = models.TextField(null=True, blank=True)
-    
+
+    # Heading of the "What we do" section on the service page
+    what_we_do_title_en = models.TextField(
+        null=True, blank=True, verbose_name='What we do - heading'
+    )
+    what_we_do_title_az = models.TextField(
+        null=True, blank=True, verbose_name='Nə edirik - başlıq'
+    )
+    what_we_do_title_ru = models.TextField(
+        null=True, blank=True, verbose_name='Что мы делаем - заголовок'
+    )
+
     # Legacy fields
     name = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     meta_title = models.TextField(null=True, blank=True)
     meta_description = models.TextField(null=True, blank=True)
-    
+
     slug = models.CharField(max_length=255, unique=True)
     image_url = models.TextField(null=True, blank=True)
     order = models.IntegerField(default=0)

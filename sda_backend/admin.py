@@ -444,13 +444,25 @@ class ServiceAdmin(admin.ModelAdmin):
             'description': 'Select two projects to feature on this service page'
         }),
         ('English', {
-            'fields': ('name_en', 'description_en', 'meta_title_en', 'meta_description_en')
+            'fields': ('name_en', 'description_en', 'what_we_do_title_en',
+                       'meta_title_en', 'meta_description_en'),
+            'description': '"What we do - heading" is shown above the What we do '
+                           'items on the service page. Leave it empty to fall back '
+                           'to the default wording built into the site.'
         }),
         ('Azərbaycan', {
-            'fields': ('name_az', 'description_az', 'meta_title_az', 'meta_description_az')
+            'fields': ('name_az', 'description_az', 'what_we_do_title_az',
+                       'meta_title_az', 'meta_description_az'),
+            'description': '"Nə edirik - başlıq" xidmət səhifəsində "Nə edirik" '
+                           'bölməsinin üstündə göstərilir. Boş buraxsanız, saytdakı '
+                           'standart mətn işlədiləcək.'
         }),
         ('Русский', {
-            'fields': ('name_ru', 'description_ru', 'meta_title_ru', 'meta_description_ru')
+            'fields': ('name_ru', 'description_ru', 'what_we_do_title_ru',
+                       'meta_title_ru', 'meta_description_ru'),
+            'description': '«Что мы делаем — заголовок» отображается над блоком '
+                           '«Что мы делаем» на странице услуги. Оставьте пустым, '
+                           'чтобы использовать текст по умолчанию.'
         }),
         ('Legacy', {
             'fields': ('name', 'description', 'meta_title', 'meta_description'),
