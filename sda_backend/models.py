@@ -254,6 +254,15 @@ class News(TimestampMixin):
     """News model"""
     photo_url = models.TextField(null=True, blank=True)
     tags = ArrayField(models.TextField(), default=list, blank=True)
+
+    # Publication date shown on the site. Entered manually and editable at any
+    # time - independent of created_at.
+    news_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name='News date',
+        help_text='Date shown on the website. If empty, the creation date is used.'
+    )
     
     # Multilingual tag fields
     tag_en = models.TextField(null=True, blank=True)
@@ -274,7 +283,9 @@ class News(TimestampMixin):
     class Meta:
         managed = False
         db_table = 'news'
-        ordering = ['-created_at']
+        # Newest first by the manually entered date; articles without one fall
+        # back to creation order instead of jumping to the top.
+        ordering = [models.F('news_date').desc(nulls_last=True), '-created_at']
         verbose_name = 'News Article'
         verbose_name_plural = 'News Articles'
 

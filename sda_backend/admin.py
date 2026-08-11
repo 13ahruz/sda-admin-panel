@@ -340,13 +340,18 @@ class ProjectSolutionAdmin(admin.ModelAdmin):
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
     form = NewsAdminForm
-    list_display = ('id', 'title_display', 'tags_display', 'sections_count', 'created_at', 'photo_preview')
+    list_display = ('id', 'title_display', 'news_date', 'tags_display', 'sections_count', 'created_at', 'photo_preview')
+    list_editable = ('news_date',)
     search_fields = ('title', 'title_en', 'title_az', 'title_ru', 'summary')
-    list_filter = ('created_at',)
-    ordering = ('-created_at',)
+    list_filter = ('news_date', 'created_at')
+    ordering = ('-news_date', '-created_at')
     inlines = [NewsSectionInline]
-    
+
     fieldsets = (
+        ('Publication date', {
+            'fields': ('news_date',),
+            'description': 'Date shown on the website. Can be changed at any time. If left empty, the creation date is used instead.'
+        }),
         ('Photo & Tags', {
             'fields': ('photo', 'photo_url', 'tags'),
             'description': 'Upload a new photo or enter the URL directly. Tags array is legacy.'
